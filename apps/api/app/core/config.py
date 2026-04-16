@@ -1,7 +1,8 @@
-"""Centralized settings loaded from `.env`.
+"""Centralized settings loaded from `.env` (local dev) or env vars (production).
 
-Everything that reads env vars goes through `get_settings()` — never call `os.environ`
-directly in the app code. This keeps typing tight and lets us swap config sources later.
+In local dev, `.env` sits at the monorepo root. In Docker/Railway there's no
+`.env` file and environment variables are injected directly — pydantic-settings
+handles both transparently as long as we don't crash when `.env` is missing.
 """
 from functools import lru_cache
 from pathlib import Path
@@ -9,14 +10,22 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Monorepo root — .env lives here.
-#   app/core/config.py → app/core → app → apps/api → apps → trendradar-app
-ROOT_DIR = Path(__file__).resolve().parents[4]
+
+def _find_env_file() -> Path | None:
+    """Walk up from this file looking for the first `.env`. Returns None in prod."""
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent / ".env"
+        if candidate.exists():
+            return candidate
+    return None
+
+
+_ENV_FILE = _find_env_file()
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=str(ROOT_DIR / ".env"),
+        env_file=str(_ENV_FILE) if _ENV_FILE else None,
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
