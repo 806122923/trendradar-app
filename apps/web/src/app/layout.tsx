@@ -1,5 +1,27 @@
 import type { Metadata, Viewport } from "next";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+
+// Match the orange landing page's typography. Latin subset is fine —
+// Chinese glyphs fall back to PingFang SC / Microsoft YaHei via CSS.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700"],
+});
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+  weight: ["400", "500", "600"],
+});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+  weight: ["400", "500"],
+});
 
 // NOTE: `/` is served from the static `public/landing.html` via a
 // `beforeFiles` rewrite in `next.config.mjs`. That file has its own full
@@ -54,8 +76,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh-CN">
-      <body className="bg-white text-zinc-900 antialiased">{children}</body>
+    <html
+      lang="zh-CN"
+      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+    >
+      <body className="bg-white text-black antialiased font-sans">
+        {children}
+      </body>
     </html>
   );
 }

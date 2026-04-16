@@ -2,23 +2,152 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   TrendRadar design tokens — mirror public/landing.html
+   Pure B/W + ONE acid accent. Sharp edges, no gradients.
+============================================================ */
 :root {
   color-scheme: light;
+
+  --bg: #ffffff;
+  --ink: #000000;
+  --muted: #8a8a8a;
+  --line: #e5e5e5;
+
+  --acid: #ff4f1a;
+  --acid-deep: #d93e0e;
+  --green: #00c853;
 }
 
 html,
 body {
   padding: 0;
   margin: 0;
+  /* Chinese glyphs fall back to PingFang / YaHei; Latin uses Inter (from next/font) */
   font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    "Helvetica Neue",
-    Arial,
+    var(--font-sans),
     "PingFang SC",
     "Hiragino Sans GB",
     "Microsoft YaHei",
+    system-ui,
     sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   Shared components — re-usable in React, same look as landing
+============================================================ */
+@layer components {
+  /* Sharp black button */
+  .btn-tr {
+    @apply inline-flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors;
+    border: 1.5px solid var(--ink);
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 2px;
+  }
+  .btn-tr:hover {
+    background: var(--acid);
+    color: var(--ink);
+    border-color: var(--acid);
+  }
+  .btn-tr:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .btn-tr:disabled:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+
+  /* Acid button — primary CTA */
+  .btn-tr-acid {
+    @apply inline-flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors;
+    border: 1.5px solid var(--acid);
+    background: var(--acid);
+    color: var(--ink);
+    border-radius: 2px;
+  }
+  .btn-tr-acid:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+
+  /* Ghost outline button */
+  .btn-tr-ghost {
+    @apply inline-flex items-center gap-2 px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors;
+    border: 1.5px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    border-radius: 2px;
+  }
+  .btn-tr-ghost:hover {
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  /* Small mono-typed section label, e.g.  03 · PICKS */
+  .tr-label {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  /* Display heading (Space Grotesk) */
+  .tr-display {
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* Sharp-cornered surface card */
+  .tr-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+  }
+
+  /* Quiet chip with sharp edges */
+  .tr-chip {
+    @apply inline-flex items-center gap-2 px-3 py-2 text-[13px] transition-colors;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    border-radius: 2px;
+  }
+  .tr-chip:hover {
+    border-color: var(--ink);
+  }
+  .tr-chip:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Acid underline mark (reuse from landing) */
+  .tr-acid-u {
+    background-image: linear-gradient(transparent 60%, var(--acid) 60%);
+  }
+}
+
+/* Scrollbars — match the minimal aesthetic */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }

@@ -1,12 +1,19 @@
 "use client";
 
 /**
- * Chat page — conversational product picker.
+ * TrendRadar chat page — conversational product picker.
  *
- * While the LLM streams, we show a lightweight "typing" indicator + partial
- * text. When streaming completes we try to parse the JSON picks and render
- * them as product cards; if parsing fails we fall back to the raw text.
+ * Visual language mirrors the orange landing page:
+ *   - Pure B/W + single acid accent (#FF4F1A)
+ *   - Sharp 2px corners, no soft shadows, no gradients
+ *   - Space Grotesk display, Inter body, JetBrains Mono labels
+ *
+ * While the LLM streams, we show a skeleton plus collapsible raw output.
+ * When streaming completes we try to parse the JSON picks and render
+ * them as structured cards with an inline SVG score chart; if parsing
+ * fails we fall back to the raw text.
  */
+
 import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -31,7 +38,9 @@ function ChatInner() {
   const [err, setErr] = useState<string | null>(null);
   const [model, setModel] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
   const autoRan = useRef(false);
+  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Auto-fill + auto-submit when URL has ?q=
   useEffect(() => {
@@ -39,11 +48,27 @@ function ChatInner() {
     if (q && !autoRan.current) {
       autoRan.current = true;
       setQuery(q);
-      // run after state settles
       setTimeout(() => run(q), 50);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+  // Elapsed-time counter while streaming
+  useEffect(() => {
+    if (busy) {
+      setElapsed(0);
+      const started = Date.now();
+      tickRef.current = setInterval(() => {
+        setElapsed(Math.floor((Date.now() - started) / 100) / 10);
+      }, 100);
+    } else if (tickRef.current) {
+      clearInterval(tickRef.current);
+      tickRef.current = null;
+    }
+    return () => {
+      if (tickRef.current) clearInterval(tickRef.current);
+    };
+  }, [busy]);
 
   async function run(q: string) {
     if (!q.trim() || busy) return;
@@ -75,10 +100,7 @@ function ChatInner() {
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    // Clear ?q= from URL so a refresh doesn't re-run the preset
-    if (searchParams.get("q")) {
-      router.replace("/chat");
-    }
+    if (searchParams.get("q")) router.replace("/chat");
     run(query);
   }
 
@@ -100,95 +122,104 @@ function ChatInner() {
   const parsed = done && !err ? tryParsePicks(response) : null;
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-zinc-100">
-        <div className="mx-auto max-w-3xl px-6 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center text-white font-bold text-xs">
-              T
-            </div>
-            <span className="font-semibold tracking-tight text-sm">
+    <div className="min-h-screen bg-paper text-ink">
+      {/* ============ NAV ============ */}
+      <nav className="sticky top-0 z-20 bg-paper border-b border-ink">
+        <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group">
+            <span
+              aria-hidden
+              className="inline-flex items-center justify-center h-6 w-6 bg-ink text-acid font-display text-lg leading-none"
+              style={{ borderRadius: 2 }}
+            >
+              ▲
+            </span>
+            <span className="font-display font-semibold text-[15px] tracking-tight">
               TrendRadar
             </span>
+            <span className="font-mono text-[10px] tracking-label text-muted ml-1">
+              / CONSOLE
+            </span>
           </Link>
-          {submittedQuery && (
-            <button
-              onClick={reset}
-              className="text-xs font-medium text-zinc-500 hover:text-black transition"
+
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              className="font-mono text-[11px] tracking-label text-muted hover:text-ink transition-colors"
             >
-              新查询
-            </button>
-          )}
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-3xl px-6 py-8 pb-24">
-        {/* Hero text (only before first submit) */}
-        {!submittedQuery && (
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold tracking-tight text-zinc-900 mb-2">
-              说说你想找什么品
-            </h1>
-            <p className="text-sm text-zinc-600">
-              用一句话描述类目 / 价格 / 增速 / 竞争度，AI 会给你 Top 3
-              推荐和推理。
-            </p>
-          </div>
-        )}
-
-        {/* Submitted query display */}
-        {submittedQuery && (
-          <div className="mb-6 rounded-xl bg-white border border-zinc-200 p-4">
-            <div className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
-              你的查询
-            </div>
-            <p className="text-sm text-zinc-800 leading-relaxed">
-              {submittedQuery}
-            </p>
-          </div>
-        )}
-
-        {/* Input form */}
-        {!submittedQuery && (
-          <form onSubmit={submit} className="space-y-3 mb-6">
-            <div className="relative">
-              <textarea
-                className="w-full min-h-[120px] p-4 pr-14 rounded-xl border border-zinc-200 bg-white text-base text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-4 focus:ring-zinc-100 transition resize-none"
-                placeholder="例：给我 3 个美区 50 美金以内、家居类、最近 7 天增速最快的品"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                disabled={busy}
-                onKeyDown={(e) => {
-                  if (
-                    (e.metaKey || e.ctrlKey) &&
-                    e.key === "Enter" &&
-                    query.trim()
-                  ) {
-                    e.preventDefault();
-                    submit(e as unknown as React.FormEvent);
-                  }
-                }}
-              />
-              <button
-                type="submit"
-                disabled={busy || !query.trim()}
-                className="absolute right-3 bottom-3 h-9 px-4 rounded-lg bg-black text-white text-sm font-medium hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition"
-              >
-                {busy ? "分析中…" : "提交 ↵"}
+              ← 首页
+            </Link>
+            {submittedQuery && (
+              <button onClick={reset} className="btn-tr-ghost !py-2 !px-3 text-xs">
+                新查询
               </button>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      <main className="mx-auto max-w-6xl px-6 py-10 pb-24">
+        {/* ============ HERO (pre-submit) ============ */}
+        {!submittedQuery && (
+          <section className="max-w-3xl">
+            <div className="tr-label text-muted mb-4">
+              00 · <span className="text-ink">AI PRODUCT PICKER</span>
             </div>
-            <div className="text-xs text-zinc-400 pl-1">
-              按 ⌘/Ctrl + Enter 快速提交
-            </div>
-          </form>
+            <h1 className="tr-display text-[44px] md:text-[56px] leading-[1.05] mb-5">
+              说说你想找<span className="tr-acid-u">什么品</span>
+              <span style={{ color: "#FF4F1A" }}>.</span>
+            </h1>
+            <p className="text-[15px] leading-relaxed text-muted max-w-xl">
+              用一句话描述类目 / 价格 / 增速 / 竞争度。AI 返回 Top 3
+              推荐，附带综合评分、推理、风险与下一步动作。
+            </p>
+          </section>
         )}
 
-        {/* Preset chips (only before submit) */}
+        {/* ============ INPUT (pre-submit) ============ */}
         {!submittedQuery && (
-          <div>
-            <div className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-3 pl-1">
-              或者直接试试
+          <section className="mt-10 max-w-3xl">
+            <div className="tr-label text-muted mb-3">01 · QUERY</div>
+            <form onSubmit={submit}>
+              <div className="relative border border-ink" style={{ borderRadius: 2 }}>
+                <textarea
+                  className="block w-full min-h-[140px] p-5 pr-4 pb-16 text-[15px] leading-relaxed text-ink placeholder:text-muted bg-paper focus:outline-none resize-none"
+                  style={{ borderRadius: 2 }}
+                  placeholder="例：给我 3 个美区 50 美金以内、家居类、最近 7 天增速最快的品"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  disabled={busy}
+                  onKeyDown={(e) => {
+                    if (
+                      (e.metaKey || e.ctrlKey) &&
+                      e.key === "Enter" &&
+                      query.trim()
+                    ) {
+                      e.preventDefault();
+                      submit(e as unknown as React.FormEvent);
+                    }
+                  }}
+                />
+                <div className="absolute left-5 bottom-5 font-mono text-[11px] tracking-label text-muted">
+                  按 ⌘/CTRL + ENTER 快速提交
+                </div>
+                <button
+                  type="submit"
+                  disabled={busy || !query.trim()}
+                  className="absolute right-3 bottom-3 btn-tr-acid !py-2.5 !px-4 text-sm"
+                >
+                  {busy ? "分析中…" : "提交 →"}
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
+
+        {/* ============ PRESETS (pre-submit) ============ */}
+        {!submittedQuery && (
+          <section className="mt-8 max-w-3xl">
+            <div className="tr-label text-muted mb-3">
+              02 · <span className="text-ink">QUICK QUERIES</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {PRESETS.map((p, i) => (
@@ -196,100 +227,170 @@ function ChatInner() {
                   key={i}
                   onClick={() => usePreset(p)}
                   disabled={busy}
-                  className="px-3 py-2 rounded-full bg-white border border-zinc-200 text-sm text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 disabled:opacity-50 transition"
+                  className="tr-chip disabled:opacity-40"
                 >
+                  <span className="font-mono text-[10px] tracking-label text-muted mr-1">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   {p}
                 </button>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Model badge */}
-        {model && submittedQuery && (
-          <div className="mb-3 text-xs text-zinc-400 font-mono flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            MODEL · {model}
-            {busy && <span className="text-orange-500">· 分析中</span>}
-          </div>
+        {/* ============ QUERY DISPLAY (post-submit) ============ */}
+        {submittedQuery && (
+          <section className="mb-8 tr-card p-5">
+            <div className="flex items-start gap-5">
+              <div className="tr-label text-muted">01 · QUERY</div>
+              <div className="flex-1">
+                <p className="text-[15px] leading-relaxed text-ink">
+                  {submittedQuery}
+                </p>
+              </div>
+            </div>
+            {(model || busy || done) && (
+              <div className="mt-4 pt-4 border-t border-line flex items-center gap-4 font-mono text-[11px] tracking-label">
+                {model && (
+                  <span className="flex items-center gap-2 text-muted">
+                    <span
+                      className="inline-block h-1.5 w-1.5 rounded-full"
+                      style={{
+                        background: done
+                          ? "#00C853"
+                          : busy
+                          ? "#FF4F1A"
+                          : "#8a8a8a",
+                      }}
+                    />
+                    MODEL · <span className="text-ink">{model}</span>
+                  </span>
+                )}
+                {busy && (
+                  <span className="text-acid">ELAPSED · {elapsed.toFixed(1)}s</span>
+                )}
+                {done && <span className="text-pos">✓ COMPLETE</span>}
+              </div>
+            )}
+          </section>
         )}
 
-        {/* Error */}
+        {/* ============ ERROR ============ */}
         {err && (
-          <div className="rounded-xl bg-rose-50 border border-rose-200 p-4 text-sm text-rose-800 mb-4">
-            <div className="font-medium mb-1">出错了</div>
-            <div className="font-mono text-xs">{err}</div>
-          </div>
+          <section
+            className="mb-6 tr-card p-5"
+            style={{ borderLeftWidth: 4, borderLeftColor: "#FF4F1A" }}
+          >
+            <div className="tr-label text-acid mb-2">ERROR</div>
+            <pre className="font-mono text-[12px] text-ink whitespace-pre-wrap break-words">
+              {err}
+            </pre>
+          </section>
         )}
 
-        {/* Streaming state — show skeleton + raw partial */}
+        {/* ============ STREAMING SKELETON ============ */}
         {busy && !err && (
-          <div className="space-y-3">
+          <section className="space-y-4">
             <StreamingSkeleton />
             {response && (
-              <details className="rounded-lg border border-zinc-200 bg-white">
-                <summary className="cursor-pointer select-none px-4 py-2 text-xs font-medium text-zinc-500 hover:text-zinc-900">
-                  查看原始流式输出
+              <details className="tr-card">
+                <summary className="cursor-pointer select-none px-5 py-3 text-[11px] font-mono tracking-label text-muted hover:text-ink">
+                  ▸ 查看原始流式输出 (DEBUG)
                 </summary>
-                <pre className="px-4 pb-3 text-xs font-mono text-zinc-600 whitespace-pre-wrap break-words max-h-60 overflow-y-auto">
+                <pre className="px-5 pb-4 text-[12px] font-mono text-ink whitespace-pre-wrap break-words max-h-64 overflow-y-auto">
                   {response}
                 </pre>
               </details>
             )}
-          </div>
+          </section>
         )}
 
-        {/* Done — parsed cards */}
+        {/* ============ RESULTS ============ */}
         {done && parsed && <ProductCards result={parsed} />}
 
-        {/* Done — parse failed, show raw */}
+        {/* ============ RESULTS (parse failed) ============ */}
         {done && !parsed && response && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-            <div className="text-xs font-medium text-amber-800 mb-2">
-              无法解析为结构化卡片，显示原文：
+          <section
+            className="tr-card p-5"
+            style={{ borderLeftWidth: 4, borderLeftColor: "#FF4F1A" }}
+          >
+            <div className="tr-label text-acid mb-2">
+              RAW OUTPUT · 无法解析为结构化卡片
             </div>
-            <pre className="text-sm text-zinc-800 whitespace-pre-wrap break-words font-mono">
+            <pre className="text-[14px] text-ink whitespace-pre-wrap break-words font-mono">
               {response}
             </pre>
-          </div>
+          </section>
         )}
 
-        {/* Retry / new query button when done */}
+        {/* ============ FOOTER CTA ============ */}
         {submittedQuery && done && (
-          <div className="mt-8 flex justify-center">
-            <button
-              onClick={reset}
-              className="px-5 py-2.5 rounded-lg bg-black text-white text-sm font-medium hover:bg-zinc-800 transition"
-            >
-              开始新查询
+          <section className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button onClick={reset} className="btn-tr-acid">
+              开始新查询 →
             </button>
-          </div>
+            <Link href="/" className="btn-tr-ghost">
+              ← 返回首页
+            </Link>
+          </section>
         )}
       </main>
     </div>
   );
 }
 
+/* =====================================================================
+   Streaming skeleton — 3 sharp-cornered bar placeholders
+===================================================================== */
 function StreamingSkeleton() {
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      {/* Metrics strip placeholder */}
+      <div className="grid grid-cols-4 border border-ink animate-pulse">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className={`px-5 py-4 ${i > 0 ? "border-l border-ink" : ""}`}
+          >
+            <div className="h-8 w-16 bg-line mb-2" />
+            <div className="h-2 w-12 bg-line" />
+          </div>
+        ))}
+      </div>
+      {/* Chart placeholder */}
+      <div className="tr-card p-6 animate-pulse">
+        <div className="h-2 w-24 bg-line mb-4" />
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="h-6 w-6 bg-line" />
+              <div
+                className="h-6 bg-line"
+                style={{ width: `${80 - i * 15}%` }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Card placeholders */}
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="rounded-xl border border-zinc-200 bg-white p-5 animate-pulse"
+          className="tr-card animate-pulse"
           style={{ animationDelay: `${i * 150}ms` }}
         >
-          <div className="flex items-start gap-4 mb-4">
-            <div className="h-10 w-10 rounded-lg bg-zinc-100" />
-            <div className="flex-1 space-y-2">
-              <div className="h-3 bg-zinc-100 rounded w-1/3" />
-              <div className="h-4 bg-zinc-100 rounded w-2/3" />
+          <div className="flex items-stretch border-b border-ink">
+            <div className="w-[88px] bg-line" />
+            <div className="flex-1 px-5 py-4 space-y-2">
+              <div className="h-2 w-24 bg-line" />
+              <div className="h-5 w-2/3 bg-line" />
             </div>
-            <div className="h-10 w-12 rounded bg-zinc-100" />
           </div>
-          <div className="space-y-2">
-            <div className="h-3 bg-zinc-100 rounded" />
-            <div className="h-3 bg-zinc-100 rounded w-5/6" />
+          <div className="p-5 space-y-3">
+            <div className="h-2 bg-line w-full" />
+            <div className="h-2 bg-line w-11/12" />
+            <div className="h-2 bg-line w-3/4" />
           </div>
         </div>
       ))}
@@ -301,8 +402,8 @@ export default function ChatPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-zinc-50 flex items-center justify-center text-sm text-zinc-400">
-          加载中…
+        <div className="min-h-screen bg-paper flex items-center justify-center font-mono text-[11px] tracking-label text-muted">
+          LOADING · CONSOLE
         </div>
       }
     >
