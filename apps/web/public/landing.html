@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TrendRadar · AI 选品 Agent for TikTok Shop</title>
+<meta name="description" content="面向 TikTok Shop 美区卖家的 AI 选品 Agent。对话式选品、竞品痛点、利润测算、1688 反搜。中文原生，比 Kalodata 便宜三分之二。" />
+<meta name="keywords" content="TikTok Shop,AI 选品,跨境电商,爆品,Kalodata,FastMoss,1688,选品工具" />
+<meta name="author" content="TrendRadar" />
+
+<!-- Canonical URL (update after you deploy) -->
+<link rel="canonical" href="https://trendradar-app-sigma.vercel.app/" />
+
+<!-- Favicon (replace the inline SVG with your own if desired) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Ctext x='16' y='23' font-family='Arial Black' font-size='22' fill='%23FF4F1A' text-anchor='middle'%3E%E2%96%B2%3C/text%3E%3C/svg%3E" type="image/svg+xml" />
+
+<!-- Open Graph (WeChat, Facebook, LinkedIn, Slack) -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="TrendRadar" />
+<meta property="og:title" content="TrendRadar · AI 选品 Agent for TikTok Shop" />
+<meta property="og:description" content="面向 TikTok Shop 美区卖家的 AI 选品 Agent。一句话输入，返回推荐、痛点、利润、货源。比 Kalodata 便宜三分之二。" />
+<meta property="og:image" content="https://trendradar-app-sigma.vercel.app/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://trendradar-app-sigma.vercel.app/" />
+<meta property="og:locale" content="zh_CN" />
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="TrendRadar · AI Product Research Agent for TikTok Shop" />
+<meta name="twitter:description" content="AI product research agent for TikTok Shop US sellers. One prompt, get picks + competitor pain + margin + 1688 sourcing." />
+<meta name="twitter:image" content="https://trendradar-app-sigma.vercel.app/og-image.png" />
+
+<!-- Theme color (browser UI tint on mobile) -->
+<meta name="theme-color" content="#000000" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Plausible Analytics (privacy-friendly, no cookies). Activated at runtime based on CONFIG.plausibleDomain below. -->
+<script>
+  (function() {
+    // Read the domain from a later-defined CONFIG object, or from a data attribute.
+    // To enable: set CONFIG.plausibleDomain = 'trendradar.ai' in the main script.
+    const meta = document.querySelector('meta[name="plausible-domain"]');
+    const domain = meta ? meta.getAttribute('content') : '';
+    if (domain) {
+      const s = document.createElement('script');
+      s.defer = true;
+      s.setAttribute('data-domain', domain);
+      s.src = 'https://plausible.io/js/script.js';
+      document.head.appendChild(s);
+      window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments); };
+    }
+  })();
+</script>
+<!-- To enable analytics, uncomment and set your domain:
+<meta name="plausible-domain" content="trendradar.ai" />
+-->
+
+<style>
+/* ============================================================
+   DESIGN SYSTEM — Minimal B/W + one bold accent block color.
+   No gradients. No soft shadows. Sharp edges.
+   Inspired by Attio / Framer / early Linear.
+============================================================ */
+:root {
+  --bg: #ffffff;
+  --ink: #000000;
+  --ink-2: #525252;
+  --muted: #8a8a8a;
+  --line: #e5e5e5;
+  --line-2: #f0f0f0;
+  --acid: #FF4F1A;          /* electric lime — the ONE accent */
+  --acid-deep: #D93E0E;
+  --green: #00C853;         /* semantic positive, used sparingly */
+
+  --display: 'Space Grotesk', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  /* hang leading/trailing CJK punctuation outside the line box (Safari; progressive enhancement) */
+  hanging-punctuation: first last allow-end;
+}
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  /* Mixed CJK + Latin: keep Latin words together, allow breaks between CJK glyphs. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  line-break: strict;
+  /* Better CJK punctuation spacing (progressive enhancement) */
+  text-spacing-trim: space-all;
+}
+a { color: inherit; }
+
+/* Headings get balanced line lengths (modern browsers) + stricter CJK rhythm. */
+h1, h2, h3, h4 {
+  text-wrap: balance;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+/* Body paragraphs: avoid orphans on last line. */
+p { text-wrap: pretty; }
+
+/* Utility: phrase must stay on one line. Wrap English brand names, unit-number pairs,
+   inline code chips, and any CJK phrase you don't want broken. */
+.nobreak { white-space: nowrap; }
+
+/* Preserve space around inline English tokens inside CJK text.
+   Use by wrapping: e.g., <span class="mix">TikTok Shop</span> */
+.mix {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 0 0.12em;
+  margin: 0 -0.12em;
+}
+
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+
+/* Typography */
+.display {
+  font-family: var(--display);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+}
+h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -0.03em; line-height: 1; margin: 0; }
+h1 { font-size: clamp(56px, 9vw, 140px); letter-spacing: -0.045em; line-height: 0.92; }
+h2 { font-size: clamp(40px, 5.5vw, 88px); letter-spacing: -0.04em; }
+h3 { font-size: clamp(24px, 2.5vw, 36px); }
+.mono { font-family: var(--mono); }
+.label {
+  font-family: var(--mono); font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.16em; color: var(--ink-2);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 22px; font-family: var(--sans); font-size: 14px;
+  font-weight: 500; text-decoration: none; border-radius: 2px;
+  border: 1.5px solid var(--ink); background: var(--ink); color: var(--bg);
+  transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+  white-space: nowrap;
+}
+.btn:hover { background: var(--acid); color: var(--ink); border-color: var(--acid); }
+.btn-ghost { background: transparent; color: var(--ink); }
+.btn-ghost:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn-acid { background: var(--acid); color: var(--ink); border-color: var(--acid); }
+.btn-acid:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* ============================================================
+   NAV
+============================================================ */
+nav.top {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--bg); border-bottom: 1px solid var(--ink);
+}
+nav.top .wrap {
+  height: 64px; display: flex; align-items: center; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.brand .mark {
+  width: 28px; height: 28px; background: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--acid); font-family: var(--display); font-weight: 700;
+  font-size: 16px; line-height: 1;
+}
+.brand .name { font-family: var(--display); font-weight: 600; font-size: 17px; letter-spacing: -0.02em; }
+.brand .tag { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: 2px; }
+nav.top .menu { display: none; gap: 36px; font-size: 14px; }
+nav.top .menu a { text-decoration: none; color: var(--ink); }
+nav.top .menu a:hover { opacity: 0.6; }
+@media (min-width: 880px) { nav.top .menu { display: flex; } }
+
+/* ============================================================
+   HERO — giant type, acid block, no gradient
+============================================================ */
+.hero {
+  padding: 110px 0 80px;
+  border-bottom: 1px solid var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+.hero .top-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 60px; gap: 20px; flex-wrap: wrap;
+}
+.hero .status {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 12px;
+  padding: 6px 12px; background: var(--acid); color: var(--ink);
+  border: 1.5px solid var(--ink);
+}
+.hero .status .dot {
+  width: 6px; height: 6px; background: var(--ink); border-radius: 50%;
+  animation: blink 1.6s steps(2) infinite;
+}
+@keyframes blink { 50% { opacity: 0.3; } }
+.hero .coords {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  text-align: right;
+}
+.hero h1 {
+  font-weight: 500;
+  max-width: 14ch;
+}
+.hero h1 .acid-mark {
+  display: inline-block;
+  background: var(--acid);
+  padding: 0 12px;
+  border: 2px solid var(--ink);
+  margin: 0 4px;
+  line-height: 1;
+}
+.hero h1 .slash {
+  display: inline-block;
+  font-family: var(--mono);
+  font-weight: 400;
+  color: var(--ink-2);
+  font-size: 0.6em;
+  vertical-align: 0.25em;
+  margin: 0 8px;
+}
+
+.hero .sub {
+  max-width: 52ch;
+  margin: 44px 0 40px;
+  font-size: clamp(17px, 2vw, 20px);
+  line-height: 1.5;
+  color: var(--ink-2);
+  font-weight: 400;
+}
+.hero .sub b { color: var(--ink); font-weight: 600; }
+.hero .sub .chip {
+  display: inline-block;
+  font-family: var(--mono); font-size: 0.92em;
+  background: var(--ink); color: var(--acid);
+  padding: 2px 8px;
+  vertical-align: 2px;
+}
+
+.hero .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 72px; }
+
+/* Hero metrics row */
+.hero .metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--ink);
+}
+@media (max-width: 720px) { .hero .metrics { grid-template-columns: repeat(2, 1fr); } }
+.hero .metric {
+  padding: 28px 0 0;
+  padding-right: 24px;
+  border-right: 1px solid var(--line);
+  padding-left: 0;
+}
+.hero .metric:first-child { padding-left: 0; }
+.hero .metric:last-child { border-right: 0; padding-right: 0; }
+.hero .metric .num {
+  font-family: var(--display); font-size: clamp(44px, 5vw, 68px);
+  font-weight: 500; letter-spacing: -0.04em; line-height: 1;
+}
+.hero .metric .num .u {
+  font-family: var(--mono); font-size: 0.3em; color: var(--ink-2);
+  vertical-align: 28%; margin-left: 4px; letter-spacing: 0;
+}
+.hero .metric .lbl {
+  margin-top: 12px; font-family: var(--mono); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
+}
+
+/* ============================================================
+   TICKER — black bar across the width
+============================================================ */
+.ticker {
+  background: var(--ink); color: var(--bg);
+  padding: 14px 0; overflow: hidden;
+  border-bottom: 1px solid var(--ink);
+}
+.ticker-track {
+  display: inline-flex; white-space: nowrap; gap: 48px;
+  animation: scroll 32s linear infinite;
+  font-family: var(--mono); font-size: 12px;
+  letter-spacing: 0.06em;
+}
+.ticker-track .accent { color: var(--acid); }
+.ticker-track .arrow { color: var(--acid); }
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   CONSOLE SECTION — black background, terminal look
+============================================================ */
+section.console-sec {
+  background: var(--ink); color: var(--bg);
+  padding: 96px 0; border-bottom: 1px solid var(--ink);
+}
+section.console-sec .label { color: var(--muted); }
+section.console-sec .grid {
+  display: grid; grid-template-columns: 1fr; gap: 56px; align-items: start;
+}
+@media (min-width: 960px) {
+  section.console-sec .grid { grid-template-columns: 5fr 7fr; gap: 80px; }
+}
+section.console-sec h2 { color: var(--bg); max-width: 14ch; margin-top: 20px; }
+section.console-sec h2 .acid { color: var(--acid); }
+section.console-sec p { color: #a3a3a3; max-width: 46ch; margin-top: 28px; font-size: 16px; line-height: 1.65; }
+section.console-sec ul { list-style: none; padding: 0; margin: 28px 0 0; font-family: var(--mono); font-size: 13px; color: #d4d4d4; }
+section.console-sec ul li { padding: 6px 0; }
+section.console-sec ul li::before { content: '→ '; color: var(--acid); }
+
+.console {
+  background: #0a0a0a; border: 1px solid #262626;
+  font-family: var(--mono); font-size: 13px; line-height: 1.65;
+  color: #e5e5e5; overflow: hidden;
+}
+.console .bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #262626;
+}
+.console .bar i {
+  width: 9px; height: 9px; display: inline-block; background: #3f3f3f;
+}
+.console .bar span {
+  margin-left: 12px; font-size: 11px; color: #737373;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.console .body { padding: 24px; }
+.console .prompt { color: #a3a3a3; margin-bottom: 16px; }
+.console .prompt .arrow { color: var(--acid); margin-right: 8px; }
+.console .meta { color: #737373; font-size: 11px; margin: 18px 0 12px; letter-spacing: 0.06em; }
+.console .row {
+  display: grid; grid-template-columns: 32px 1fr auto auto;
+  gap: 16px; align-items: baseline;
+  padding: 12px 0; border-top: 1px solid #262626;
+}
+.console .rank { color: var(--acid); }
+.console .prod { color: #fafafa; }
+.console .prod small {
+  display: block; font-family: var(--sans); font-size: 11px;
+  color: #737373; margin-top: 3px; letter-spacing: 0;
+}
+.console .delta { color: var(--acid); }
+.console .score {
+  font-family: var(--mono); color: #fafafa;
+  padding: 2px 8px; background: #262626; font-size: 11px;
+}
+.console .rationale {
+  margin-top: 20px; padding: 14px 16px;
+  background: rgba(255, 79, 26, 0.07);
+  border-left: 2px solid var(--acid);
+  color: #d4d4d4; font-size: 12px; line-height: 1.7;
+}
+.console .rationale b { color: var(--acid); font-weight: 500; }
+
+/* ============================================================
+   DASHBOARD — shadcn-inspired chart card
+============================================================ */
+section.dashboard {
+  padding: 120px 0;
+  background: #fafafa;
+  border-bottom: 1px solid var(--ink);
+}
+section.dashboard .head {
+  display: grid; grid-template-columns: 1fr; gap: 28px;
+  margin-bottom: 56px;
+}
+@media (min-width: 840px) {
+  section.dashboard .head { grid-template-columns: 1.2fr 1fr; align-items: end; }
+}
+section.dashboard h2 { max-width: 20ch; }
+section.dashboard h2 .acid-ul {
+  background-image: linear-gradient(var(--acid), var(--acid));
+  background-repeat: no-repeat;
+  background-size: 100% 22%;
+  background-position: 0 96%;
+  padding: 0 4px;
+}
+section.dashboard .head p { color: var(--ink-2); max-width: 46ch; font-size: 16px; }
+
+.chart-card {
+  background: var(--bg);
+  border: 1.5px solid var(--ink);
+  position: relative;
+}
+.chart-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 28px 32px 22px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap; gap: 20px;
+}
+.chart-head h3 {
+  font-size: 26px; font-weight: 500; margin: 0 0 6px;
+  letter-spacing: -0.02em; line-height: 1.1;
+}
+.chart-head h3 .mono-tag {
+  font-family: var(--mono); font-size: 13px;
+  color: var(--muted); font-weight: 400; margin-left: 6px;
+  letter-spacing: 0;
+}
+.chart-head .desc { font-size: 14px; color: var(--ink-2); margin: 0; }
+.tag-live {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 11px;
+  padding: 5px 10px; background: var(--ink); color: var(--acid);
+  letter-spacing: 0.14em;
+}
+.tag-live .ld {
+  width: 6px; height: 6px; background: var(--acid); border-radius: 50%;
+  animation: blink 1.4s steps(2) infinite;
+}
+
+.kpis {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 0;
+  border-bottom: 1px solid var(--line);
+}
+@media (min-width: 720px) {
+  .kpis { grid-template-columns: repeat(4, 1fr); }
+}
+.kpi { padding: 22px 24px; border-right: 1px solid var(--line); }
+.kpi:last-child { border-right: 0; }
+@media (max-width: 719px) {
+  .kpi:nth-child(2n) { border-right: 0; }
+  .kpi:nth-child(1), .kpi:nth-child(2) { border-bottom: 1px solid var(--line); }
+}
+.kpi-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+.kpi-lbl {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+}
+.kpi-icon {
+  font-family: var(--mono); font-size: 13px; line-height: 1;
+  width: 22px; height: 22px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--acid); color: var(--bg);
+}
+.kpi-dot {
+  width: 8px; height: 8px; background: var(--acid); border-radius: 50%;
+  animation: blink 1.6s steps(2) infinite;
+}
+.kpi-badge {
+  font-family: var(--mono); font-size: 10px; padding: 2px 7px;
+  background: var(--line-2); color: var(--ink); letter-spacing: 0.1em;
+}
+.kpi-val {
+  font-family: var(--display); font-size: 30px; font-weight: 500;
+  letter-spacing: -0.03em; line-height: 1; color: var(--ink);
+}
+.kpi-val .arr { color: var(--acid); }
+.kpi-delta {
+  margin-top: 10px; font-family: var(--mono); font-size: 11px;
+  color: var(--acid-deep); letter-spacing: 0.04em;
+}
+.kpi-delta.muted { color: var(--muted); }
+
+.chart-wrap {
+  padding: 24px 24px 8px;
+  height: 340px;
+  position: relative;
+}
+
+.chart-foot {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 16px; border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: 11px;
+  color: var(--muted); letter-spacing: 0.06em;
+  flex-wrap: wrap;
+}
+.chart-foot .ld-small {
+  width: 6px; height: 6px; background: var(--acid); border-radius: 50%;
+  animation: blink 1.6s steps(2) infinite;
+}
+.chart-foot .sep { color: var(--line); }
+
+/* ============================================================
+   ANIMATIONS — tasteful, reserved, additive only.
+   All respect prefers-reduced-motion.
+============================================================ */
+
+/* Scroll-linked reading progress */
+#scroll-bar {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: var(--acid);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  z-index: 100;
+  will-change: transform;
+  transition: transform 0.08s linear;
+}
+
+/* Reveal: translate + fade on entering viewport */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+/* Staggered reveals — children pick up index from data-stagger or inline --i */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-stagger.is-in > * {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* Button micro-motion */
+.btn {
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+              transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+
+/* Bento tile hover — subtle lift with accent bar */
+.tile {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s ease;
+  position: relative;
+}
+.tile::after {
+  content: '';
+  position: absolute; left: 0; bottom: 0; right: 0; height: 0;
+  background: var(--acid);
+  transition: height 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.tile:hover::after { height: 3px; }
+.t-hero:hover::after { height: 0; } /* main dark tile keeps flat */
+.t-lang:hover::after { height: 0; }
+
+/* Compare-table row hover */
+.compare tbody tr {
+  transition: background 0.2s ease;
+}
+.compare tbody tr:hover {
+  background: #fafafa;
+}
+.compare tbody tr:hover td.ours {
+  background: #f3f3f3;
+}
+
+/* Logo entrance */
+.brand .mark {
+  animation: mark-in 1.0s cubic-bezier(0.22, 1, 0.36, 1) 0.15s backwards;
+}
+@keyframes mark-in {
+  0%   { transform: rotate(-140deg) scale(0.5); opacity: 0; }
+  70%  { transform: rotate(10deg) scale(1.08); opacity: 1; }
+  100% { transform: rotate(0) scale(1); opacity: 1; }
+}
+
+/* Hero acid-mark subtle breathing */
+.hero h1 .acid-mark {
+  position: relative;
+  animation: mark-pulse 4.2s ease-in-out infinite 1s;
+}
+@keyframes mark-pulse {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+
+/* Hero h1 cascade-in on load */
+.hero h1 {
+  animation: hero-in 1s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+}
+.hero .sub {
+  animation: hero-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s backwards;
+}
+.hero .cta-row {
+  animation: hero-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s backwards;
+}
+.hero .metrics {
+  animation: hero-in 1s cubic-bezier(0.22, 1, 0.36, 1) 0.65s backwards;
+}
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Typewriter caret */
+.type-caret {
+  display: inline-block;
+  width: 9px; height: 1em;
+  background: var(--acid);
+  vertical-align: -2px;
+  margin-left: 4px;
+  animation: caret-blink 1s steps(2) infinite;
+}
+@keyframes caret-blink { 50% { opacity: 0; } }
+
+/* Console rows stagger when console section enters view */
+.console .row,
+.console .rationale {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+section.console-sec.in-view .console .row,
+section.console-sec.in-view .console .rationale {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i, 0) * 140ms + 600ms);
+}
+
+/* KPI value — pulse into color briefly after count finishes */
+.kpi-val.just-done {
+  animation: kpi-flash 0.6s ease;
+}
+@keyframes kpi-flash {
+  0%   { color: var(--acid); }
+  100% { color: var(--ink); }
+}
+
+/* Ticker crossfade between sections — slight wash effect */
+.ticker-track { will-change: transform; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal, .reveal-stagger > * { opacity: 1 !important; transform: none !important; }
+}
+
+/* ============================================================
+   BIG MANIFESTO — acid section
+============================================================ */
+section.manifesto {
+  background: var(--acid); color: var(--ink);
+  padding: 120px 0; border-bottom: 1px solid var(--ink);
+}
+section.manifesto h2 {
+  font-size: clamp(40px, 7vw, 112px);
+  letter-spacing: -0.04em; line-height: 0.92;
+  max-width: 22ch;
+}
+section.manifesto h2 .cross {
+  text-decoration: line-through;
+  text-decoration-thickness: 5px;
+  text-decoration-color: var(--ink);
+  opacity: 0.55;
+}
+section.manifesto .sig {
+  margin-top: 48px; font-family: var(--mono); font-size: 13px;
+  letter-spacing: 0.06em; color: var(--ink);
+}
+
+/* ============================================================
+   AGAINST — comparison matrix, editorial
+============================================================ */
+section.against {
+  padding: 120px 0; border-bottom: 1px solid var(--ink);
+}
+section.against .head {
+  display: grid; grid-template-columns: 1fr; gap: 28px;
+  padding-bottom: 60px; border-bottom: 1px solid var(--ink);
+}
+@media (min-width: 840px) {
+  section.against .head { grid-template-columns: 1fr 1.6fr; align-items: end; }
+}
+section.against .head h2 { max-width: 16ch; }
+
+section.against table.compare {
+  width: 100%; border-collapse: collapse;
+  margin-top: 40px;
+  font-family: var(--sans);
+}
+.compare th, .compare td {
+  padding: 22px 18px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  font-size: 15px;
+  vertical-align: top;
+}
+.compare thead th {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); font-weight: 400;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 14px; padding-top: 14px;
+}
+.compare thead th.ours {
+  background: var(--ink); color: var(--acid);
+  padding-left: 18px; padding-right: 18px;
+}
+.compare td.ours {
+  background: #fafafa; font-weight: 500;
+}
+.compare td .x { color: #d4d4d4; font-family: var(--mono); font-size: 16px; }
+.compare td .y { color: var(--ink); font-family: var(--mono); font-size: 16px; }
+.compare .row-label { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; color: var(--ink); }
+
+/* ============================================================
+   BENTO — strict B/W asymmetric
+============================================================ */
+section.bento {
+  padding: 120px 0;
+  background: #fafafa;
+  border-bottom: 1px solid var(--ink);
+}
+.bento .kicker {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 56px; gap: 24px; flex-wrap: wrap;
+}
+.bento .kicker h2 { max-width: 20ch; }
+.bento .kicker h2 .acid-ul {
+  background-image: linear-gradient(var(--acid), var(--acid));
+  background-repeat: no-repeat;
+  background-size: 100% 24%;
+  background-position: 0 95%;
+  padding: 0 4px;
+}
+
+.grid-bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: minmax(120px, auto);
+  gap: 0;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+}
+.tile {
+  background: var(--bg);
+  padding: 32px;
+  display: flex; flex-direction: column; gap: 10px;
+  position: relative;
+  min-height: 220px;
+}
+.tile .tlabel {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 6px;
+}
+.tile h3 { font-size: clamp(22px, 2vw, 28px); font-weight: 500; }
+.tile p { color: var(--ink-2); font-size: 14px; line-height: 1.6; }
+
+/* Spans */
+.t-hero    { grid-column: span 6; grid-row: span 2; background: var(--ink); color: var(--bg); }
+.t-hero h3 { color: var(--bg); font-size: clamp(32px, 4vw, 56px); font-weight: 500; line-height: 1; letter-spacing: -0.03em; max-width: 18ch; }
+.t-hero p  { color: #a3a3a3; max-width: 52ch; font-size: 16px; }
+.t-pain    { grid-column: span 3; }
+.t-profit  { grid-column: span 3; }
+.t-source  { grid-column: span 2; background: var(--acid); }
+.t-daily   { grid-column: span 2; }
+.t-lang    { grid-column: span 2; background: var(--ink); color: var(--bg); }
+.t-lang .tlabel { color: var(--acid); }
+.t-lang h3 { color: var(--bg); }
+.t-lang p { color: #a3a3a3; }
+
+@media (min-width: 840px) {
+  .t-hero   { grid-column: span 4; grid-row: span 2; }
+  .t-pain   { grid-column: span 2; grid-row: span 2; }
+  .t-profit { grid-column: span 3; }
+  .t-source { grid-column: span 3; }
+  .t-daily  { grid-column: span 3; }
+  .t-lang   { grid-column: span 3; }
+}
+
+.t-hero .spark {
+  margin-top: auto; padding-top: 40px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+}
+.t-hero .spark div { border-left: 2px solid var(--acid); padding-left: 14px; }
+.t-hero .spark .v { font-family: var(--display); font-size: 28px; color: var(--bg); }
+.t-hero .spark .k { font-family: var(--mono); font-size: 10px; color: #a3a3a3; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+
+.t-pain .bars { margin-top: auto; display: flex; flex-direction: column; gap: 4px; }
+.t-pain .bar-row { padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+.t-pain .bar-row:first-child { border-top: 0; }
+.t-pain .count { font-family: var(--mono); font-size: 12px; color: var(--ink); background: var(--acid); padding: 2px 8px; }
+
+.t-profit .kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: auto; border-top: 1px solid var(--line); }
+.t-profit .k { padding: 16px 14px; border-right: 1px solid var(--line); }
+.t-profit .k:nth-child(2n) { border-right: 0; }
+.t-profit .k:nth-child(n+3) { border-top: 1px solid var(--line); }
+.t-profit .k .v { font-family: var(--display); font-size: 26px; font-weight: 500; letter-spacing: -0.02em; }
+.t-profit .k .l { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px; }
+
+.t-source .big {
+  margin-top: auto; font-family: var(--display); font-size: clamp(36px, 4vw, 56px);
+  font-weight: 500; letter-spacing: -0.03em; line-height: 1;
+  color: var(--ink);
+}
+.t-source .big .u { font-family: var(--mono); font-size: 0.35em; margin-left: 6px; color: var(--ink); opacity: 0.7; }
+.t-source .big small { display: block; font-family: var(--mono); font-size: 12px; margin-top: 6px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.7; }
+
+.t-daily .days { margin-top: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.t-daily .days span {
+  font-family: var(--mono); font-size: 11px;
+  padding: 5px 10px; border: 1px solid var(--ink);
+  letter-spacing: 0.06em;
+}
+.t-daily .days .on { background: var(--ink); color: var(--acid); }
+
+.t-lang .alt { margin-top: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.t-lang .alt del { color: #525252; }
+
+/* ============================================================
+   PRICING — single big hero card + two small ones
+============================================================ */
+section.pricing {
+  padding: 120px 0; border-bottom: 1px solid var(--ink);
+}
+.pricing .head {
+  display: grid; grid-template-columns: 1fr; gap: 28px; margin-bottom: 60px;
+}
+@media (min-width: 840px) { .pricing .head { grid-template-columns: 1.2fr 1fr; align-items: end; } }
+.pricing h2 { max-width: 18ch; }
+.pricing .head p { color: var(--ink-2); max-width: 42ch; }
+
+.plan-main {
+  display: grid; grid-template-columns: 1fr;
+  border: 2px solid var(--ink);
+}
+@media (min-width: 840px) { .plan-main { grid-template-columns: 1.2fr 1fr; } }
+.plan-main .left {
+  padding: 48px 44px;
+  background: var(--ink); color: var(--bg);
+  position: relative;
+}
+.plan-main .left .tag {
+  position: absolute; top: 48px; right: 44px;
+  font-family: var(--mono); font-size: 11px;
+  padding: 4px 10px; background: var(--acid); color: var(--ink);
+  letter-spacing: 0.12em;
+}
+.plan-main .left h3 {
+  color: var(--bg); font-size: clamp(40px, 4vw, 56px); margin-bottom: 20px;
+}
+.plan-main .left .desc { color: #a3a3a3; font-size: 15px; max-width: 34ch; }
+.plan-main .left .price {
+  margin-top: 36px;
+  font-family: var(--display); font-size: clamp(72px, 8vw, 112px);
+  line-height: 1; letter-spacing: -0.05em; font-weight: 500;
+}
+.plan-main .left .price s { color: #525252; font-size: 0.35em; margin-right: 14px; font-weight: 400; }
+.plan-main .left .price .per { font-family: var(--mono); font-size: 0.18em; color: #a3a3a3; letter-spacing: 0.08em; margin-left: 10px; }
+.plan-main .left .note {
+  margin-top: 12px; font-family: var(--mono); font-size: 12px;
+  color: var(--acid); letter-spacing: 0.05em;
+}
+.plan-main .left .btn { margin-top: 32px; }
+
+.plan-main .right {
+  padding: 48px 44px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.plan-main .right .tlabel {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 6px;
+}
+.plan-main .right ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr; gap: 0; }
+.plan-main .right li {
+  font-size: 14px; color: var(--ink); padding: 12px 0;
+  border-top: 1px solid var(--line);
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.plan-main .right li:first-child { border-top: 0; }
+.plan-main .right li::before {
+  content: '✓'; color: var(--ink);
+  font-family: var(--mono); font-weight: 500;
+  flex-shrink: 0;
+}
+
+.plan-other {
+  display: grid; grid-template-columns: 1fr; gap: 0;
+  margin-top: -2px; border: 2px solid var(--ink); border-top: 0;
+}
+@media (min-width: 760px) { .plan-other { grid-template-columns: 1fr 1fr; } }
+.plan-other .card {
+  padding: 36px 44px;
+  border-right: 2px solid var(--ink);
+}
+.plan-other .card:last-child { border-right: 0; }
+@media (max-width: 759px) {
+  .plan-other .card { border-right: 0; border-bottom: 2px solid var(--ink); }
+  .plan-other .card:last-child { border-bottom: 0; }
+}
+.plan-other h4 {
+  font-family: var(--display); font-size: 28px; margin: 0;
+  letter-spacing: -0.02em; font-weight: 500;
+}
+.plan-other .p {
+  font-family: var(--mono); font-size: 14px; color: var(--ink-2);
+  margin: 8px 0 20px;
+}
+.plan-other ul { list-style: none; padding: 0; margin: 0; font-size: 14px; color: var(--ink-2); }
+.plan-other li { padding: 6px 0; }
+.plan-other li::before { content: '— '; color: var(--muted); font-family: var(--mono); }
+
+/* ============================================================
+   FAQ — sharp, minimal
+============================================================ */
+section.faq {
+  padding: 120px 0; border-bottom: 1px solid var(--ink);
+}
+.faq .head {
+  display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 56px;
+}
+@media (min-width: 840px) { .faq .head { grid-template-columns: 1fr 1.5fr; } }
+.faq details { border-top: 1px solid var(--ink); padding: 24px 4px; }
+.faq details:last-child { border-bottom: 1px solid var(--ink); }
+.faq summary {
+  list-style: none; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--display); font-size: clamp(22px, 2.2vw, 28px);
+  font-weight: 500; letter-spacing: -0.02em;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary .plus {
+  font-family: var(--mono); font-size: 20px;
+  transition: transform 0.2s ease;
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--ink);
+}
+.faq details[open] summary .plus { transform: rotate(45deg); background: var(--acid); }
+.faq details p {
+  margin: 18px 0 0; color: var(--ink-2); font-size: 15px; line-height: 1.75;
+  max-width: 72ch;
+}
+
+/* ============================================================
+   CTA — black + acid strike
+============================================================ */
+section.cta {
+  padding: 140px 0;
+  background: var(--ink); color: var(--bg);
+  position: relative; overflow: hidden;
+}
+section.cta .acid-block {
+  position: absolute; top: 0; right: 0;
+  width: 40%; height: 80%;
+  background: var(--acid);
+  transform: skewX(-8deg) translateX(20%);
+  pointer-events: none;
+  display: none;
+}
+@media (min-width: 960px) { section.cta .acid-block { display: block; } }
+section.cta .inner { position: relative; z-index: 2; max-width: 680px; }
+section.cta h2 {
+  color: var(--bg); font-size: clamp(48px, 7vw, 104px);
+  line-height: 0.95;
+}
+section.cta h2 .acid-u {
+  text-decoration: underline;
+  text-decoration-color: var(--acid);
+  text-decoration-thickness: 8px;
+  text-underline-offset: 8px;
+}
+section.cta p {
+  margin: 32px 0 40px;
+  color: #a3a3a3;
+  font-size: 18px;
+  max-width: 46ch;
+  line-height: 1.55;
+}
+section.cta form {
+  display: grid; grid-template-columns: 1fr; gap: 12px; max-width: 500px;
+}
+@media (min-width: 560px) { section.cta form { grid-template-columns: 1fr auto; } }
+section.cta input {
+  padding: 16px 18px;
+  background: transparent;
+  border: 1.5px solid #525252;
+  color: var(--bg);
+  font-family: var(--sans); font-size: 15px;
+}
+section.cta input::placeholder { color: #737373; }
+section.cta input:focus { outline: none; border-color: var(--acid); }
+section.cta .btn { background: var(--acid); color: var(--ink); border-color: var(--acid); padding: 16px 24px; }
+section.cta .btn:hover { background: var(--bg); color: var(--ink); border-color: var(--bg); }
+section.cta .small {
+  margin-top: 24px; font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.1em; color: #737373;
+}
+#success-msg {
+  display: none; margin-top: 24px; padding: 14px 18px;
+  background: var(--acid); color: var(--ink);
+  font-family: var(--mono); font-size: 13px;
+}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+footer {
+  padding: 56px 0 32px; background: var(--bg);
+}
+footer .wrap {
+  display: grid; grid-template-columns: 1fr; gap: 32px;
+  padding-bottom: 32px; border-bottom: 1px solid var(--ink);
+}
+@media (min-width: 760px) { footer .wrap { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+footer h5 {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  margin: 0 0 18px; font-weight: 400;
+}
+footer a {
+  display: block; padding: 5px 0; text-decoration: none;
+  font-size: 14px; color: var(--ink);
+}
+footer a:hover { color: var(--ink-2); }
+footer .colophon {
+  margin-top: 24px; display: flex; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+  font-family: var(--mono); font-size: 11px;
+  color: var(--muted); letter-spacing: 0.06em;
+  padding: 0 32px;
+  max-width: 1280px; margin-left: auto; margin-right: auto;
+}
+
+/* === DARK-ACCENT OVERRIDES: text on accent flips to white === */
+.btn:hover,
+.btn-acid,
+.hero .status,
+.hero h1 .acid-mark,
+.plan-main .left .tag,
+.t-pain .count,
+#success-msg {
+  color: var(--bg);
+}
+.hero .status .dot { background: var(--bg); }
+.manifesto,
+.manifesto .sig,
+.t-source,
+.t-source h3,
+.t-source .tlabel,
+.t-source .big,
+.t-source .big .u,
+.t-source .big small {
+  color: var(--bg);
+}
+.manifesto h2 .cross { text-decoration-color: var(--bg); }
+.hero h1 .acid-mark { border-color: var(--acid); }
+/* In CTA section, btn-acid already renders over black — good. */
+
+</style>
+</head>
+<body>
+
+<!-- Scroll progress bar -->
+<div id="scroll-bar" aria-hidden="true"></div>
+
+<!-- ============ NAV ============ -->
+<nav class="top">
+  <div class="wrap">
+    <a href="#" class="brand">
+      <span class="mark">▲</span>
+      <span class="name">TrendRadar</span>
+      <span class="tag">/ 爆品雷达</span>
+    </a>
+    <div class="menu">
+      <a href="#console">演示</a>
+      <a href="#dashboard">档案</a>
+      <a href="#features">功能</a>
+      <a href="#pricing">定价</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="/chat" class="btn">立即试用</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="status">
+        <span class="dot"></span>
+        <span class="nobreak">PRIVATE BETA · 100 seats left</span>
+      </div>
+      <div class="coords">
+        <span class="nobreak">N 34°16'</span> · <span class="nobreak">TRENDRADAR / v0.1</span><br/>
+        <span style="color: var(--ink);" class="nobreak">2026 · SHENZHEN</span>
+      </div>
+    </div>
+
+    <h1>
+      选品不靠猜．<br/>
+      靠<span class="acid-mark">判断力</span>．
+    </h1>
+
+    <p class="sub">
+      为 <span class="nobreak">TikTok Shop</span> 美区中国卖家打造的 <span class="nobreak">AI 选品 Agent</span>。
+      一句话输入，返回<b>推荐、痛点、利润、货源</b>。中文原生，比 <span class="nobreak">Kalodata</span> 便宜 ⅔．
+    </p>
+
+    <div class="cta-row">
+      <a href="/chat" class="btn btn-acid">免费试用 →</a>
+      <a href="#console" class="btn btn-ghost">看它如何运作</a>
+    </div>
+
+    <div class="metrics reveal-stagger" data-reveal>
+      <div class="metric" style="--i:0">
+        <div class="num"><span class="count-up" data-target="10" data-decimals="0">0</span><span class="u">×</span></div>
+        <div class="lbl">决策速度</div>
+      </div>
+      <div class="metric" style="--i:1">
+        <div class="num">¥<span class="count-up" data-target="99" data-decimals="0">0</span></div>
+        <div class="lbl">月费起步</div>
+      </div>
+      <div class="metric" style="--i:2">
+        <div class="num"><span class="count-up" data-target="30" data-decimals="0">0</span><span class="u">D</span></div>
+        <div class="lbl">免费试用</div>
+      </div>
+      <div class="metric" style="--i:3">
+        <div class="num"><span class="count-up" data-target="1688" data-decimals="0" data-commas="1">0</span></div>
+        <div class="lbl">货源反搜</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ TICKER ============ -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="accent">TRENDING</span> <span class="arrow">›</span> 美区家居 +38% 7D
+    <span class="arrow">·</span> 宠物用品 +27% 7D
+    <span class="arrow">·</span> 美妆周边 +45% 14D
+    <span class="arrow">·</span> 厨房小件 +22% 7D
+    <span class="arrow">·</span> 户外便携 +19% 7D
+    <span class="arrow">·</span> 儿童益智 +33% 14D
+    <span class="arrow">·</span> 收纳整理 +41% 7D
+    <span class="accent">· TRENDING</span> <span class="arrow">›</span> 美区家居 +38% 7D
+    <span class="arrow">·</span> 宠物用品 +27% 7D
+    <span class="arrow">·</span> 美妆周边 +45% 14D
+    <span class="arrow">·</span> 厨房小件 +22% 7D
+    <span class="arrow">·</span> 户外便携 +19% 7D
+    <span class="arrow">·</span> 儿童益智 +33% 14D
+    <span class="arrow">·</span> 收纳整理 +41% 7D
+  </div>
+</div>
+
+<!-- ============ CONSOLE ============ -->
+<section class="console-sec" id="console">
+  <div class="wrap grid">
+    <div class="reveal">
+      <div class="label">01 · PRODUCT DEMO</div>
+      <h2>一句话，<br/>返回<span class="acid">爆品</span>．</h2>
+      <p>
+        别再看图表猜趋势。告诉它你要什么，它像一位做过三年的选品经理，给你带推理的推荐。
+      </p>
+      <ul>
+        <li>每个推荐都附数据来源和推理链路</li>
+        <li>可持续追问，上下文保留</li>
+        <li>一键导出为<span class="nobreak">飞书 / Notion</span> 文档</li>
+      </ul>
+    </div>
+
+    <div class="console reveal">
+      <div class="bar">
+        <i></i><i></i><i></i>
+        <span>radar · chat · us · home · 14d</span>
+      </div>
+      <div class="body">
+        <div class="prompt">
+          <span class="arrow">❯</span>
+          <span id="typewriter-target">给我 3 个美区 50 美金以内、家居类、最近 7 天增速最快的品</span>
+        </div>
+        <div class="meta">ANALYZING 2,847 PRODUCTS · 214 SHOPS · 14-DAY WINDOW</div>
+
+        <div class="row" style="--i:0">
+          <div class="rank">01</div>
+          <div class="prod">LED 便携小夜灯（触控款）<small>US $19.99 · 毛利 62%</small></div>
+          <div class="delta">+342%</div>
+          <div class="score">★92</div>
+        </div>
+        <div class="row" style="--i:1">
+          <div class="rank">02</div>
+          <div class="prod">静音加湿器 300ml<small>US $24.99 · 毛利 58%</small></div>
+          <div class="delta">+218%</div>
+          <div class="score">★88</div>
+        </div>
+        <div class="row" style="--i:2">
+          <div class="rank">03</div>
+          <div class="prod">可折叠收纳篮（3 件套）<small>US $15.99 · 毛利 71%</small></div>
+          <div class="delta">+185%</div>
+          <div class="score">★85</div>
+        </div>
+
+        <div class="rationale" style="--i:3">
+          <b>推理：</b>三个品都进入 <span class="nobreak">7 日</span>增速 <span class="nobreak">Top 20</span>，但 #1 最值得做——触控款 <span class="nobreak">LED 夜灯</span>近期被 3 位 <span class="nobreak">500k+ 粉</span>博主测评带起话题，评论区集中询价而非吐槽，价格带处在 <span class="nobreak">TikTok Shop</span> "冲动消费"甜区，<span class="nobreak">1688</span> 现货充足，无明显专利风险。<br/>
+          <b>建议：</b>以 #1 为主推，搭配 #3（高毛利）做组合捆绑。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DASHBOARD ============ -->
+<section class="dashboard" id="dashboard">
+  <div class="wrap">
+    <div class="head reveal">
+      <div>
+        <div class="label" style="margin-bottom: 18px;">02 · 选品档案 / DOSSIER</div>
+        <h2>每个品，<br/>一份<span class="acid-ul">档案</span>．</h2>
+      </div>
+      <p>点击任意推荐，展开完整数据：<span class="nobreak">GMV 趋势</span>、转化率、达人视频、评论情感、竞品对比、<span class="nobreak">1688 供应商</span>——一屏给你所有决策依据。</p>
+    </div>
+
+    <div class="chart-card reveal">
+      <div class="chart-head">
+        <div>
+          <h3><span class="nobreak">LED 便携小夜灯</span> · 历史表现 <span class="mono-tag">/ SKU-4812</span></h3>
+          <p class="desc">过去 6 个月的 <span class="nobreak">GMV 与转化率</span>趋势 · 数据来自 <span class="nobreak">TikTok Shop US</span></p>
+        </div>
+        <div class="tag-live"><span class="ld"></span>LIVE DATA</div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-lbl">总 GMV · 6M</span>
+            <span class="kpi-icon">↗</span>
+          </div>
+          <div class="kpi-val">$<span class="count-up" data-target="204600" data-decimals="0" data-commas="1">0</span></div>
+          <div class="kpi-delta">+184% vs. 前 6 月</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-lbl">平均转化率</span>
+            <span class="kpi-dot"></span>
+          </div>
+          <div class="kpi-val"><span class="count-up" data-target="3.4" data-decimals="1">0</span>%</div>
+          <div class="kpi-delta muted">品类基线 2.1%</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-lbl">达人合作数</span>
+            <span class="kpi-icon">+</span>
+          </div>
+          <div class="kpi-val"><span class="count-up" data-target="47" data-decimals="0">0</span></div>
+          <div class="kpi-delta">本月新增 12 位</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-top">
+            <span class="kpi-lbl">竞争强度</span>
+            <span class="kpi-badge">中等</span>
+          </div>
+          <div class="kpi-val"><span class="count-up" data-target="23" data-decimals="0">0</span><span class="arr"> ·</span></div>
+          <div class="kpi-delta muted">家店铺在卖</div>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="trendChart"></canvas>
+      </div>
+
+      <div class="chart-foot">
+        <span class="ld-small"></span>
+        <span>OCT 2025 — MAR 2026</span>
+        <span class="sep">·</span>
+        <span>TIKTOK SHOP US</span>
+        <span class="sep">·</span>
+        <span>UPDATED 2H AGO</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MANIFESTO ============ -->
+<section class="manifesto">
+  <div class="wrap reveal">
+    <div class="label" style="color: var(--ink); margin-bottom: 40px;">03 · STATEMENT</div>
+    <h2>
+      不做 <span class="cross">数据面板</span>．<br/>
+      做<em style="font-style: normal;">替你思考</em>的 <span class="nobreak">AI Agent</span>．
+    </h2>
+    <div class="sig">— TRENDRADAR / 2026</div>
+  </div>
+</section>
+
+<!-- ============ AGAINST (Comparison Table) ============ -->
+<section class="against">
+  <div class="wrap">
+    <div class="head reveal">
+      <div>
+        <div class="label" style="margin-bottom: 18px;">04 · 对比</div>
+        <h2>它们 <span style="color: var(--muted);">vs</span> 我们</h2>
+      </div>
+      <p style="color: var(--ink-2); font-size: 16px; max-width: 48ch;">
+        <span class="nobreak">Kalodata</span>、<span class="nobreak">FastMoss</span> 为月 GMV <span class="nobreak">十万+</span> 的品牌方设计。我们为月 GMV <span class="nobreak">3k–30k</span> 的中国卖家打造。
+      </p>
+    </div>
+
+    <table class="compare reveal">
+      <thead>
+        <tr>
+          <th style="width: 28%;">能力</th>
+          <th style="width: 36%;"><span class="nobreak">Kalodata / FastMoss</span></th>
+          <th class="ours" style="width: 36%;">TrendRadar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">界面语言</td>
+          <td><span class="x">—</span> 英文</td>
+          <td class="ours"><span class="y">✓</span> 中文原生</td>
+        </tr>
+        <tr>
+          <td class="row-label">交互模式</td>
+          <td><span class="x">—</span> 数据面板 + 筛选器</td>
+          <td class="ours"><span class="y">✓</span> 对话式 AI Agent</td>
+        </tr>
+        <tr>
+          <td class="row-label">决策辅助</td>
+          <td><span class="x">—</span> 自己看图表</td>
+          <td class="ours"><span class="y">✓</span> AI 给推荐 + 推理</td>
+        </tr>
+        <tr>
+          <td class="row-label">1688 货源</td>
+          <td><span class="x">—</span> 无</td>
+          <td class="ours"><span class="y">✓</span> 图搜 + 一键反搜</td>
+        </tr>
+        <tr>
+          <td class="row-label">利润测算</td>
+          <td><span class="x">—</span> 手动计算</td>
+          <td class="ours"><span class="y">✓</span> AI 自动建模</td>
+        </tr>
+        <tr>
+          <td class="row-label">月费起步</td>
+          <td><span class="x">—</span> $49.99 / ¥360</td>
+          <td class="ours"><span class="y">✓</span> ¥99</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ BENTO FEATURES ============ -->
+<section class="bento" id="features">
+  <div class="wrap">
+    <div class="kicker reveal">
+      <div>
+        <div class="label" style="margin-bottom: 18px;">05 · 核心能力</div>
+        <h2>只做<span class="acid-ul">四件事</span>．<br/>做到极致．</h2>
+      </div>
+      <a href="#pricing" class="btn btn-ghost">查看定价 →</a>
+    </div>
+
+    <div class="grid-bento reveal">
+
+      <div class="tile t-hero">
+        <div class="tlabel">PRIMARY · 对话式选品</div>
+        <h3>你的浏览器里，<br/>多一位选品经理．</h3>
+        <p>自然语言输入，AI 返回带推理的推荐卡片。数据来源、竞品对比、毛利预估一并附上。可持续追问。</p>
+        <div class="spark">
+          <div><div class="v">2.3s</div><div class="k">平均响应</div></div>
+          <div><div class="v">94%</div><div class="k">推荐命中</div></div>
+          <div><div class="v">100%</div><div class="k">可追问</div></div>
+        </div>
+      </div>
+
+      <div class="tile t-pain">
+        <div class="tlabel">痛点洞察</div>
+        <h3>爬评论，拆差评。</h3>
+        <p>粘贴竞品链接，AI 归纳用户真实抱怨，反向给出改款建议。</p>
+        <div class="bars">
+          <div class="bar-row"><span>电池续航差</span><span class="count">48</span></div>
+          <div class="bar-row"><span>包装简陋</span><span class="count">31</span></div>
+          <div class="bar-row"><span>说明书仅英文</span><span class="count">22</span></div>
+          <div class="bar-row"><span>尺寸偏小</span><span class="count">17</span></div>
+        </div>
+      </div>
+
+      <div class="tile t-profit">
+        <div class="tlabel">利润测算</div>
+        <h3>扣点、运费、广告——<br/>一次算透。</h3>
+        <p style="margin-bottom: 8px;">输入成本，输出盈亏平衡和三档定价建议。</p>
+        <div class="kpi">
+          <div class="k"><div class="v">$24.99</div><div class="l">建议定价</div></div>
+          <div class="k"><div class="v">58%</div><div class="l">预估毛利</div></div>
+          <div class="k"><div class="v">1.72</div><div class="l">盈亏 ROAS</div></div>
+          <div class="k"><div class="v">15</div><div class="l">日订单阈值</div></div>
+        </div>
+      </div>
+
+      <div class="tile t-source">
+        <div class="tlabel">1688 反搜</div>
+        <h3>图搜同款，直接报价。</h3>
+        <div class="big">
+          ¥32.5<span class="u">/件</span>
+          <small>Matched in 0.4s</small>
+        </div>
+      </div>
+
+      <div class="tile t-daily">
+        <div class="tlabel">爆品日报</div>
+        <h3>每天 <span class="nobreak">08:00</span>，微信收。</h3>
+        <p>每日精选 <span class="nobreak">5–10 个</span>潜力品，附 <span class="nobreak">AI 拆解</span>摘要。</p>
+        <div class="days">
+          <span class="on">MON</span>
+          <span class="on">TUE</span>
+          <span class="on">WED</span>
+          <span class="on">THU</span>
+          <span class="on">FRI</span>
+        </div>
+      </div>
+
+      <div class="tile t-lang">
+        <div class="tlabel">中文原生</div>
+        <h3>用母语做判断。</h3>
+        <p>中文问、中文答、中文导出。不是翻译，是原生。</p>
+        <div class="alt"><del>translated</del> → native</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="head reveal">
+      <div>
+        <div class="label" style="margin-bottom: 18px;">06 · 定价</div>
+        <h2>一档主力，<br/>够<span class="acid-ul">跑通闭环</span>．</h2>
+      </div>
+      <p>不搞选择恐惧。主力只一档，够用；免费版和团队版作为两端。</p>
+    </div>
+
+    <div class="plan-main reveal">
+      <div class="left">
+        <span class="tag">MOST POPULAR</span>
+        <h3>Professional</h3>
+        <div class="desc">月 GMV <span class="nobreak">3k–30k 美金</span>的成长期卖家。功能全开，不设限。</div>
+        <div class="price"><s>¥198</s>¥99<span class="per">/ MO</span></div>
+        <div class="note">✱ 前 100 名终身 5 折 · 年付再免 2 个月</div>
+        <a href="/chat" class="btn btn-acid">立即免费试用 →</a>
+      </div>
+      <div class="right">
+        <div class="tlabel">包含</div>
+        <ul>
+          <li>每日 <span class="nobreak">30 次</span>对话式选品</li>
+          <li>完整竞品痛点分析</li>
+          <li>利润测算 <span class="nobreak">+ 三档定价</span></li>
+          <li><span class="nobreak">1688 反搜</span> + 一键比价</li>
+          <li>爆品日报（<span class="nobreak">邮件 + 微信</span>）</li>
+          <li><span class="nobreak">飞书 / Notion</span> 导出</li>
+          <li>选品模板库</li>
+          <li>优先客服响应</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="plan-other reveal">
+      <div class="card">
+        <h4>Free</h4>
+        <div class="p">¥0 / 永久</div>
+        <ul>
+          <li>每日 3 次对话选品</li>
+          <li>基础竞品分析</li>
+          <li>不含 1688 反搜</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Team</h4>
+        <div class="p">¥299 / 月</div>
+        <ul>
+          <li>无限对话选品</li>
+          <li>5 人协作席位</li>
+          <li>API 对接 + 专属客服</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="head reveal">
+      <div>
+        <div class="label" style="margin-bottom: 18px;">07 · 常见问题</div>
+        <h2>你可能<br/>想知道的。</h2>
+      </div>
+      <p style="color: var(--ink-2); font-size: 16px;">还有其他问题？给我们发邮件：<br/><b style="color: var(--ink);">hi@trendradar.ai</b></p>
+    </div>
+
+    <details>
+      <summary>和 <span class="nobreak">Kalodata</span>、<span class="nobreak">FastMoss</span> 的区别？<span class="plus">+</span></summary>
+      <p>它们是"数据面板"——给你看图表，让你自己决策。我们是"选品 Agent"——给你决策、给你推理、给你下一步。而且中文原生、价格是它们的三分之一。定位不同。</p>
+    </details>
+    <details>
+      <summary>数据准确吗？从哪里来？<span class="plus">+</span></summary>
+      <p>数据来自 <span class="nobreak">TikTok Shop</span> 公开接口、合作数据供应商、自有爬虫组合。每日更新，所有推荐都会展示数据来源，你可以自己判断可信度。我们不做黑盒。</p>
+    </details>
+    <details>
+      <summary>我是新手，没做过 <span class="nobreak">TikTok Shop</span>，能用吗？<span class="plus">+</span></summary>
+      <p>可以。产品专为新手优化——用中文描述你想做的品类或人群，<span class="nobreak">AI</span> 会引导你一步步决策。我们也提供入门模板，比如"美区家居新手 <span class="nobreak">30 天</span>起盘"。</p>
+    </details>
+    <details>
+      <summary>现在能用吗？什么时候正式上线？<span class="plus">+</span></summary>
+      <p>目前处于内测阶段，计划 <span class="nobreak">2 个月</span>内开放给等候名单用户。前 <span class="nobreak">100 名</span>终身 <span class="nobreak">5 折</span>优惠，加入等候名单锁定资格。</p>
+    </details>
+    <details>
+      <summary>支持其他平台吗？<span class="plus">+</span></summary>
+      <p>首发聚焦 <span class="nobreak">TikTok Shop 美区</span>。接下来会扩展到 <span class="nobreak">TikTok Shop 东南亚</span>和 <span class="nobreak">Amazon US</span>。<span class="nobreak">Shopify 独立站</span>场景在规划中。</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta" id="cta">
+  <div class="acid-block"></div>
+  <div class="wrap inner reveal">
+    <div class="label" style="color: var(--acid); margin-bottom: 28px;">08 · Pro 版抢先体验</div>
+    <h2>已经<span class="acid-u">上线</span>。<br/>Pro 版<span style="color: var(--acid);">.</span></h2>
+    <p>产品核心功能已经可以免费试用。留下邮箱，Pro 版上线时第一时间通知你，前 <span class="nobreak">100 名</span>锁定终身 <span class="nobreak">5 折</span>。</p>
+    <form id="wlform">
+      <input type="email" name="email" required placeholder="你的邮箱（Pro 上线时第一时间通知你）" />
+      <!-- Anti-spam honeypot (bots fill this; humans won't) -->
+      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+      <button type="submit" class="btn" id="wl-submit">锁定 5 折名额 →</button>
+    </form>
+    <div id="success-msg">✓ 已收到。Pro 上线第一时间通知你。</div>
+    <div id="error-msg" style="display:none; margin-top:18px; padding:14px 18px; background:#1a0000; color:#ff8866; font-family:var(--mono); font-size:13px; border-left:2px solid var(--acid);">提交失败，请稍后重试，或直接邮件 hi@trendradar.ai</div>
+    <div class="small">不发营销邮件 · 仅产品上线和月度更新</div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div>
+      <a href="#" class="brand" style="margin-bottom: 14px;">
+        <span class="mark">▲</span>
+        <span class="name">TrendRadar</span>
+      </a>
+      <p style="color: var(--ink-2); font-size: 14px; max-width: 36ch; margin: 0;">
+        面向 TikTok Shop 美区中国卖家的 AI 选品 Agent。中文原生，对话式交互。
+      </p>
+    </div>
+    <div>
+      <h5>Product</h5>
+      <a href="#features">功能</a>
+      <a href="#pricing">定价</a>
+      <a href="#console">演示</a>
+    </div>
+    <div>
+      <h5>Company</h5>
+      <a href="#">关于我们</a>
+      <a href="mailto:hi@trendradar.ai">联系</a>
+      <a href="#">加入我们</a>
+    </div>
+    <div>
+      <h5>Legal</h5>
+      <a href="#">隐私政策</a>
+      <a href="#">服务条款</a>
+      <a href="#">Cookie</a>
+    </div>
+  </div>
+  <div class="colophon">
+    <span>TRENDRADAR © 2026 · BUILT IN SHENZHEN</span>
+    <span>v0.1.0 · PRIVATE BETA</span>
+  </div>
+</footer>
+
+<script>
+  // ============================================================
+  //  CONFIG — replace the placeholders below before going live.
+  // ============================================================
+  const CONFIG = {
+    // 1. Get a free Formspree form from https://formspree.io/
+    //    Paste the endpoint here. Until you do, the form falls back to
+    //    a local-only "success" state so you can still demo the page.
+    formspreeEndpoint: 'https://formspree.io/f/mgoroaaw',
+
+    // 2. (Optional) Plausible Analytics domain. Leave empty to disable.
+    //    Sign up at https://plausible.io/ (or self-host Umami).
+    plausibleDomain: '',  // e.g. 'trendradar.ai'
+  };
+
+  // Respect reduced motion
+  const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ===== 1. Waitlist form (Formspree) =====
+  (function() {
+    const form = document.getElementById('wlform');
+    const success = document.getElementById('success-msg');
+    const error = document.getElementById('error-msg');
+    const btn = document.getElementById('wl-submit');
+    const endpoint = CONFIG.formspreeEndpoint;
+    const configured = endpoint && !endpoint.includes('YOUR_FORM_ID');
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      error.style.display = 'none';
+
+      // Fallback demo mode: no Formspree configured yet → just show success.
+      if (!configured) {
+        console.warn('[TrendRadar] Formspree endpoint not configured. Set CONFIG.formspreeEndpoint to capture real emails.');
+        form.style.display = 'none';
+        success.style.display = 'block';
+        return;
+      }
+
+      btn.textContent = '提交中…';
+      btn.disabled = true;
+
+      try {
+        const data = new FormData(form);
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          body: data,
+          headers: { Accept: 'application/json' }
+        });
+        if (!res.ok) throw new Error('Network response not ok');
+        form.style.display = 'none';
+        success.style.display = 'block';
+        // Fire analytics event if Plausible is loaded
+        if (window.plausible) window.plausible('Waitlist Signup');
+      } catch (err) {
+        console.error(err);
+        error.style.display = 'block';
+        btn.textContent = '加入等候 →';
+        btn.disabled = false;
+      }
+    });
+  })();
+
+  // ===== 1.5 Track CTA clicks for funnel analysis (fires if Plausible loaded) =====
+  document.querySelectorAll('a.btn, a[href="#cta"]').forEach(el => {
+    el.addEventListener('click', function() {
+      if (window.plausible) window.plausible('CTA Click', { props: { label: this.textContent.trim() } });
+    });
+  });
+
+  // ===== 2. Scroll progress bar =====
+  (function() {
+    const bar = document.getElementById('scroll-bar');
+    if (!bar) return;
+    function onScroll() {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const p = max > 0 ? h.scrollTop / max : 0;
+      bar.style.transform = 'scaleX(' + p + ')';
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  // ===== 3. Reveal-on-scroll (IntersectionObserver) =====
+  (function() {
+    if (REDUCE) {
+      document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => el.classList.add('is-in'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => io.observe(el));
+  })();
+
+  // ===== 4. Count-up on visibility =====
+  (function() {
+    function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+    function animateCount(el) {
+      const target = parseFloat(el.dataset.target);
+      const decimals = parseInt(el.dataset.decimals || '0', 10);
+      const commas = el.dataset.commas === '1';
+      const duration = REDUCE ? 0 : 1400;
+      if (duration === 0) {
+        el.textContent = format(target);
+        return;
+      }
+      const start = performance.now();
+      function format(v) {
+        const n = decimals === 0 ? Math.round(v) : v.toFixed(decimals);
+        if (commas) return Number(n).toLocaleString();
+        return String(n);
+      }
+      function tick(now) {
+        const p = Math.min((now - start) / duration, 1);
+        const eased = easeOutExpo(p);
+        el.textContent = format(target * eased);
+        if (p < 1) requestAnimationFrame(tick);
+        else if (el.closest('.kpi-val')) {
+          el.closest('.kpi-val').classList.add('just-done');
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animateCount(e.target);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.count-up').forEach(el => io.observe(el));
+  })();
+
+  // ===== 5. Typewriter for console prompt on visibility =====
+  (function() {
+    const target = document.getElementById('typewriter-target');
+    if (!target) return;
+    const original = target.textContent.trim();
+    if (REDUCE) { return; }
+    target.textContent = '';
+    const caret = document.createElement('span');
+    caret.className = 'type-caret';
+    target.parentNode.appendChild(caret);
+
+    function typeIt() {
+      let i = 0;
+      function tick() {
+        if (i <= original.length) {
+          target.textContent = original.slice(0, i);
+          i++;
+          const delay = 45 + Math.random() * 55;
+          setTimeout(tick, delay);
+        } else {
+          setTimeout(() => caret.remove(), 1400);
+        }
+      }
+      tick();
+    }
+
+    const parent = target.closest('.console');
+    if (!parent) { typeIt(); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          setTimeout(typeIt, 250);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    io.observe(parent);
+  })();
+
+  // ===== 6. Console rows stagger-in =====
+  (function() {
+    const sec = document.querySelector('section.console-sec');
+    if (!sec) return;
+    if (REDUCE) { sec.classList.add('in-view'); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          sec.classList.add('in-view');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    io.observe(sec);
+  })();
+
+  // ===== 7. CHART: defer render until scrolled into view =====
+  (function() {
+    const canvas = document.getElementById('trendChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    let rendered = false;
+
+    function render() {
+      if (rendered) return;
+      rendered = true;
+      const ctx = canvas.getContext('2d');
+
+    // Orange gradient for bars: solid top → faded bottom
+    const barGrad = ctx.createLinearGradient(0, 0, 0, 320);
+    barGrad.addColorStop(0, 'rgba(255, 79, 26, 1)');
+    barGrad.addColorStop(1, 'rgba(255, 79, 26, 0.18)');
+
+    const MONO = 'JetBrains Mono, ui-monospace, monospace';
+    const INK = '#000000';
+    const MUTED = '#8a8a8a';
+    const LINE = '#f0f0f0';
+    const ACID = '#FF4F1A';
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['10月', '11月', '12月', '1月', '2月', '3月'],
+        datasets: [
+          {
+            type: 'bar',
+            label: 'GMV',
+            data: [18400, 21800, 35200, 28500, 42100, 58600],
+            backgroundColor: barGrad,
+            borderRadius: 4,
+            borderSkipped: false,
+            maxBarThickness: 54,
+            yAxisID: 'y',
+            order: 2,
+          },
+          {
+            type: 'line',
+            label: '转化率',
+            data: [2.1, 2.4, 3.8, 3.2, 4.1, 4.9],
+            borderColor: INK,
+            backgroundColor: '#ffffff',
+            pointBackgroundColor: INK,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            borderWidth: 2.5,
+            tension: 0.38,
+            yAxisID: 'y1',
+            order: 1,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'end',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle',
+              font: { family: MONO, size: 11 },
+              color: '#525252',
+              boxWidth: 8,
+              padding: 18,
+            }
+          },
+          tooltip: {
+            backgroundColor: INK,
+            titleColor: ACID,
+            bodyColor: '#ffffff',
+            titleFont: { family: MONO, size: 11, weight: 'normal' },
+            bodyFont: { family: MONO, size: 12 },
+            padding: 12,
+            borderColor: ACID,
+            borderWidth: 1,
+            cornerRadius: 0,
+            displayColors: false,
+            callbacks: {
+              label: function(c) {
+                if (c.dataset.type === 'line') return '转化率  ' + c.parsed.y.toFixed(1) + '%';
+                return 'GMV      $' + c.parsed.y.toLocaleString();
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: {
+              font: { family: MONO, size: 11 },
+              color: MUTED,
+              padding: 8,
+            }
+          },
+          y: {
+            position: 'left',
+            beginAtZero: true,
+            grid: { color: LINE, drawBorder: false, drawTicks: false },
+            border: { display: false },
+            ticks: {
+              font: { family: MONO, size: 11 },
+              color: MUTED,
+              callback: function(value) {
+                return '$' + (value / 1000).toFixed(0) + 'k';
+              },
+              padding: 10,
+            }
+          },
+          y1: {
+            position: 'right',
+            beginAtZero: true,
+            max: 6,
+            grid: { display: false },
+            border: { display: false },
+            ticks: {
+              font: { family: MONO, size: 11 },
+              color: MUTED,
+              callback: function(value) { return value + '%'; },
+              padding: 10,
+            }
+          }
+        }
+      }
+    });
+    }  // end render
+
+    // Trigger render when dashboard scrolls into view
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          setTimeout(render, 150);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.25 });
+    io.observe(canvas);
+  })();
+</script>
+</body>
+</html>
