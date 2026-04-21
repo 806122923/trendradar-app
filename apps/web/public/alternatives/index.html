@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TrendRadar vs 其他 TikTok Shop 选品工具 · 完整对比 | TrendRadar</title>
+<meta name="description" content="TrendRadar vs Kalodata · vs 嘀嗒狗 · vs EchoTik。三个主流 TikTok Shop 选品工具横向对比，帮你挑一个最适合新手的。" />
+<meta name="keywords" content="TikTok Shop 选品工具对比,Kalodata vs,嘀嗒狗 vs,EchoTik vs,TikTok 工具对比" />
+<link rel="canonical" href="https://trendradar-app-sigma.vercel.app/alternatives/" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="TrendRadar vs 其他 TikTok Shop 选品工具 · 完整对比" />
+<meta property="og:description" content="Kalodata / 嘀嗒狗 / EchoTik 横向对比，帮新手挑对工具。" />
+<meta property="og:image" content="https://trendradar-app-sigma.vercel.app/og-image.png" />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Ctext x='16' y='23' font-family='Arial Black' font-size='22' fill='%23FF4F1A' text-anchor='middle'%3E%E2%96%B2%3C/text%3E%3C/svg%3E" type="image/svg+xml" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+:root {
+  --bg: #ffffff; --ink: #000000; --ink-2: #525252; --muted: #8a8a8a;
+  --line: #e5e5e5; --line-2: #f0f0f0; --acid: #FF4F1A;
+  --display: 'Space Grotesk', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--acid); outline-offset: 2px; border-radius: 2px; }
+html { scroll-behavior: smooth; hanging-punctuation: first last allow-end; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; word-break: keep-all; overflow-wrap: anywhere; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4 { text-wrap: balance; word-break: keep-all; font-family: var(--display); letter-spacing: -0.02em; margin: 0; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+nav .inner { display: flex; justify-content: space-between; align-items: center; height: 64px; }
+nav .logo { font-family: var(--display); font-weight: 700; font-size: 18px; }
+nav .logo span { color: var(--acid); }
+nav .links { display: flex; gap: 28px; font-size: 14px; }
+nav .links a { color: var(--ink-2); transition: color .15s; }
+nav .links a:hover { color: var(--ink); }
+nav .cta { background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 2px; font-size: 13px; font-weight: 500; }
+nav .cta:hover { background: var(--acid); }
+
+.hero { padding: 80px 0 40px; border-bottom: 1px solid var(--line); }
+.label { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--acid); margin-bottom: 24px; display: inline-block; }
+.label-ink { color: var(--ink); }
+h1 { font-size: clamp(36px, 5.5vw, 56px); font-weight: 600; line-height: 1.05; margin-bottom: 20px; }
+h1 .hl { background: var(--acid); color: var(--bg); padding: 0 8px; }
+.sub { font-size: 18px; color: var(--ink-2); max-width: 640px; line-height: 1.55; }
+
+section { padding: 64px 0; border-bottom: 1px solid var(--line); }
+section h2 { font-size: clamp(26px, 3.5vw, 36px); font-weight: 600; margin-bottom: 16px; line-height: 1.15; }
+section .intro { font-size: 16px; color: var(--ink-2); max-width: 720px; margin-bottom: 36px; }
+
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 860px) { .cards { grid-template-columns: 1fr; } }
+.card {
+  border: 1px solid var(--line); padding: 28px; border-radius: 2px;
+  display: flex; flex-direction: column; transition: border-color .15s, transform .15s;
+}
+.card:hover { border-color: var(--ink); transform: translateY(-2px); }
+.card .tag-row { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.card .tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; padding: 3px 8px; border: 1px solid var(--line); border-radius: 2px; }
+.card .tag.acid { color: var(--acid); border-color: var(--acid); }
+.card h3 { font-size: 22px; margin-bottom: 12px; }
+.card .desc { color: var(--ink-2); font-size: 14.5px; line-height: 1.6; margin-bottom: 20px; flex-grow: 1; }
+.card .arrow { color: var(--acid); font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; }
+
+/* MASTER COMPARE TABLE */
+table.master { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+table.master th, table.master td { padding: 14px 10px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.master th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--line-2); }
+table.master th.ours { color: var(--acid); background: var(--ink); }
+table.master td.col-label { font-weight: 500; color: var(--ink-2); font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+table.master td.col-ours { background: #fff8f5; }
+table.master .yes { color: var(--acid); font-weight: 600; }
+table.master .no { color: var(--muted); }
+
+/* CTA */
+.cta-section { background: var(--ink); color: var(--bg); padding: 72px 0; border-bottom: none; }
+.cta-section h2 { color: var(--bg); }
+.cta-section .intro { color: #b8b8b8; }
+.cta-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 28px; }
+.btn { display: inline-block; padding: 14px 22px; border-radius: 2px; font-weight: 500; font-size: 15px; transition: background .15s; }
+.btn-acid { background: var(--acid); color: var(--bg); }
+.btn-acid:hover { background: #ff6a3a; }
+.btn-ghost { background: transparent; color: var(--bg); border: 1px solid #444; }
+.btn-ghost:hover { border-color: var(--acid); color: var(--acid); }
+
+footer { padding: 40px 0; font-size: 13px; color: var(--muted); }
+footer a { color: var(--ink-2); }
+footer a:hover { color: var(--acid); }
+footer .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+
+@media (max-width: 680px) {
+  nav .links { display: none; }
+  section { padding: 48px 0; }
+  .hero { padding: 56px 0 32px; }
+  table.master th, table.master td { padding: 10px 8px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap inner">
+    <a href="/" class="logo">Trend<span>Radar</span></a>
+    <div class="links">
+      <a href="/">首页</a>
+      <a href="/alternatives/">对比</a>
+      <a href="/#pricing">定价</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <a href="/chat" class="cta">立即试用 →</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="label">Alternatives · 工具对比</span>
+    <h1>
+      TikTok Shop 选品工具，<br/>
+      <span class="hl">挑一个对的</span>。
+    </h1>
+    <p class="sub">
+      市面上的选品工具不少。贵的、免费的、全链路的、中文的——每个都说自己最好。
+      我们诚实地把自己和三个主要对手摆一起，让你根据自己情况挑。
+    </p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <span class="label label-ink">01 · Compare Pages · 详细对比</span>
+    <h2>逐个看。<br/>每个 5 分钟读完。</h2>
+
+    <div class="cards">
+      <a href="/alternatives/kalodata" class="card">
+        <div class="tag-row">
+          <span class="tag acid">主对手</span>
+          <span class="tag">英文 · $99/月</span>
+        </div>
+        <h3>vs Kalodata</h3>
+        <p class="desc">英文数据面板的代表。$99/月（≈¥700）让新手望而却步。适合有经验的品牌方，不适合零收入新手。</p>
+        <span class="arrow">→ 看详细对比</span>
+      </a>
+
+      <a href="/alternatives/didadog" class="card">
+        <div class="tag-row">
+          <span class="tag">免费</span>
+          <span class="tag">中文</span>
+        </div>
+        <h3>vs 嘀嗒狗</h3>
+        <p class="desc">永久免费，数据准。问题是只给数据不给判断。新手看完表格还是不知道选啥。</p>
+        <span class="arrow">→ 看详细对比</span>
+      </a>
+
+      <a href="/alternatives/echotik" class="card">
+        <div class="tag-row">
+          <span class="tag">中文 · 全链路</span>
+        </div>
+        <h3>vs EchoTik</h3>
+        <p class="desc">中文全链路工具，10+ 模块覆盖广。代价是新手打开第一屏就过载。我们只做选品一件事做到深。</p>
+        <span class="arrow">→ 看详细对比</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="label label-ink">02 · Quick Scan · 一表看全</span>
+    <h2>不想挨个读？<br/>这张表就够了。</h2>
+
+    <table class="master">
+      <thead>
+        <tr>
+          <th style="width: 22%;">&nbsp;</th>
+          <th class="ours">TrendRadar</th>
+          <th>Kalodata</th>
+          <th>嘀嗒狗</th>
+          <th>EchoTik</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-label">月费</td>
+          <td class="col-ours"><span class="yes">¥99</span></td>
+          <td>$99 (≈¥700)</td>
+          <td>免费</td>
+          <td>多档</td>
+        </tr>
+        <tr>
+          <td class="col-label">语言</td>
+          <td class="col-ours"><span class="yes">中文原生</span></td>
+          <td>英文</td>
+          <td>中文</td>
+          <td>中文</td>
+        </tr>
+        <tr>
+          <td class="col-label">形态</td>
+          <td class="col-ours"><span class="yes">AI Agent</span></td>
+          <td>数据面板</td>
+          <td>导航站</td>
+          <td>全链路面板</td>
+        </tr>
+        <tr>
+          <td class="col-label">替你判断</td>
+          <td class="col-ours"><span class="yes">✓</span></td>
+          <td><span class="no">—</span></td>
+          <td><span class="no">—</span></td>
+          <td><span class="no">—</span></td>
+        </tr>
+        <tr>
+          <td class="col-label">新手友好</td>
+          <td class="col-ours"><span class="yes">✓</span></td>
+          <td><span class="no">—</span></td>
+          <td><span class="no">—</span></td>
+          <td><span class="no">—</span></td>
+        </tr>
+        <tr>
+          <td class="col-label">1688 反搜</td>
+          <td class="col-ours"><span class="yes">✓</span></td>
+          <td><span class="no">—</span></td>
+          <td><span class="no">—</span></td>
+          <td>部分</td>
+        </tr>
+        <tr>
+          <td class="col-label">推理链透明</td>
+          <td class="col-ours"><span class="yes">✓</span></td>
+          <td><span class="no">—</span></td>
+          <td><span class="no">—</span></td>
+          <td><span class="no">—</span></td>
+        </tr>
+        <tr>
+          <td class="col-label">广告 / 达人 / 直播</td>
+          <td class="col-ours"><span class="no">—</span></td>
+          <td>部分</td>
+          <td><span class="no">—</span></td>
+          <td><span class="yes" style="color:var(--ink)">✓</span></td>
+        </tr>
+        <tr>
+          <td class="col-label">上手时间</td>
+          <td class="col-ours"><span class="yes">5 分钟</span></td>
+          <td>几小时</td>
+          <td>半天</td>
+          <td>半天—几天</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="wrap">
+    <span class="label">03 · Try · 试一句就知道</span>
+    <h2>对比看得再多,<br/>不如问一句。</h2>
+    <p class="intro">TrendRadar 不用注册也能先聊。首周 ¥9.9，随时取消。</p>
+    <div class="cta-row">
+      <a href="/chat" class="btn btn-acid">用一句中文问一下 →</a>
+      <a href="/#pricing" class="btn btn-ghost">查看完整定价</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <div>© 2026 TrendRadar · 面向 TikTok Shop 美区新手卖家的中文 AI 选品 Agent</div>
+    <div>
+      <a href="/">返回首页</a> &nbsp;·&nbsp;
+      <a href="/#pricing">定价</a> &nbsp;·&nbsp;
+      <a href="/#faq">FAQ</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

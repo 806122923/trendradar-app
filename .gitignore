@@ -49,3 +49,8 @@ logs/
 # Local secrets
 *api_key*
 ds_api_key.txt
+
+# ==== Cowork / Claude local config ====
+.claude/
+install-skills.ps1
+link-skills.ps1

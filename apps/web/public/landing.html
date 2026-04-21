@@ -36,8 +36,10 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Async font loading — CSS is non-blocking; display=swap ensures text is never invisible -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 
 <!-- Plausible Analytics (privacy-friendly, no cookies). Activated at runtime based on CONFIG.plausibleDomain below. -->
 <script>
@@ -83,6 +85,16 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+
+/* Global focus ring — DESIGN.md §1.3
+   Acid is the only "color" allowed for focus; 2px outline + 2px offset. */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 html {
   scroll-behavior: smooth;
   /* hang leading/trailing CJK punctuation outside the line box (Safari; progressive enhancement) */
@@ -304,7 +316,8 @@ nav.top .menu a:hover { opacity: 0.6; }
 ============================================================ */
 section.console-sec {
   background: var(--ink); color: var(--bg);
-  padding: 96px 0; border-bottom: 1px solid var(--ink);
+  padding: 120px 0;
+  /* dark section — no visible border needed; the color shift itself is the boundary */
 }
 section.console-sec .label { color: var(--muted); }
 section.console-sec .grid {
@@ -537,10 +550,9 @@ section.dashboard .head p { color: var(--ink-2); max-width: 46ch; font-size: 16p
 .btn:hover { transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
 
-/* Bento tile hover — subtle lift with accent bar */
+/* Bento tile hover — subtle lift; DESIGN.md §7: no soft shadows */
 .tile {
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   position: relative;
 }
 .tile::after {
@@ -998,6 +1010,11 @@ section.cta input {
 }
 section.cta input::placeholder { color: #737373; }
 section.cta input:focus { outline: none; border-color: var(--acid); }
+section.cta input:focus-visible {
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
+  border-color: var(--acid);
+}
 section.cta .btn { background: var(--acid); color: var(--ink); border-color: var(--acid); padding: 16px 24px; }
 section.cta .btn:hover { background: var(--bg); color: var(--ink); border-color: var(--bg); }
 section.cta .small {
@@ -1008,6 +1025,47 @@ section.cta .small {
   display: none; margin-top: 24px; padding: 14px 18px;
   background: var(--acid); color: var(--ink);
   font-family: var(--mono); font-size: 13px;
+}
+
+/* Error message — DESIGN.md §9.4: no border-left stripe, full 1px acid outline */
+#error-msg {
+  display: none; margin-top: 24px; padding: 14px 18px;
+  background: transparent; color: var(--bg);
+  font-family: var(--mono); font-size: 13px;
+  border: 1px solid var(--acid);
+}
+
+/* Scarcity bar above the form — DESIGN.md §4 Label style */
+section.cta .scarcity {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--acid);
+  margin-bottom: 20px;
+  display: inline-block;
+  padding: 6px 10px;
+  border: 1px solid var(--acid);
+}
+
+/* Trust strip — 3 numbered proofs, mono UPPER, muted */
+section.cta .trust-strip {
+  list-style: none; padding: 0; margin: 32px 0 0;
+  display: grid; grid-template-columns: 1fr; gap: 10px;
+  max-width: 560px;
+}
+@media (min-width: 720px) {
+  section.cta .trust-strip {
+    grid-template-columns: repeat(3, 1fr); gap: 18px;
+  }
+}
+section.cta .trust-strip li {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.1em; color: #a3a3a3;
+  padding-top: 10px; border-top: 1px solid #2a2a2a;
+  display: flex; align-items: baseline; gap: 8px;
+  line-height: 1.5;
+}
+section.cta .trust-strip .t-num {
+  color: var(--acid); font-weight: 500;
 }
 
 /* ============================================================
@@ -1021,7 +1079,7 @@ footer .wrap {
   padding-bottom: 32px; border-bottom: 1px solid var(--ink);
 }
 @media (min-width: 760px) { footer .wrap { grid-template-columns: 2fr 1fr 1fr 1fr; } }
-footer h5 {
+footer h4 {
   font-family: var(--mono); font-size: 11px; color: var(--muted);
   letter-spacing: 0.14em; text-transform: uppercase;
   margin: 0 0 18px; font-weight: 400;
@@ -1097,7 +1155,7 @@ footer .colophon {
     <div class="top-row">
       <div class="status">
         <span class="dot"></span>
-        <span class="nobreak">PRIVATE BETA · 100 seats left</span>
+        <span class="nobreak">PRIVATE BETA · 53 SEATS LEFT</span>
       </div>
       <div class="coords">
         <span class="nobreak">N 34°16'</span> · <span class="nobreak">TRENDRADAR / v0.1</span><br/>
@@ -1105,14 +1163,17 @@ footer .colophon {
       </div>
     </div>
 
+    <div class="label" style="color: var(--acid); margin-bottom: 20px;">00 · FOR TIKTOK SHOP US · 美区卖家</div>
+
     <h1>
       选品不靠猜．<br/>
       靠<span class="acid-mark">判断力</span>．
     </h1>
 
     <p class="sub">
-      为 <span class="nobreak">TikTok Shop</span> 美区中国卖家打造的 <span class="nobreak">AI 选品 Agent</span>。
-      一句话输入，返回<b>推荐、痛点、利润、货源</b>。中文原生，比 <span class="nobreak">Kalodata</span> 便宜 ⅔．
+      选品 <span class="nobreak">Agent</span>，不是数据报表。
+      一句话输入，返回<b>推荐、痛点、利润、货源</b>。
+      中文原生，价格 <span class="nobreak">Kalodata</span> 的 <b>⅓</b>．
     </p>
 
     <div class="cta-row">
@@ -1165,7 +1226,7 @@ footer .colophon {
 <section class="console-sec" id="console">
   <div class="wrap grid">
     <div class="reveal">
-      <div class="label">01 · PRODUCT DEMO</div>
+      <div class="label">01 · CONSOLE · 演示</div>
       <h2>一句话，<br/>返回<span class="acid">爆品</span>．</h2>
       <p>
         别再看图表猜趋势。告诉它你要什么，它像一位做过三年的选品经理，给你带推理的推荐。
@@ -1222,7 +1283,7 @@ footer .colophon {
   <div class="wrap">
     <div class="head reveal">
       <div>
-        <div class="label" style="margin-bottom: 18px;">02 · 选品档案 / DOSSIER</div>
+        <div class="label" style="margin-bottom: 18px;">02 · DOSSIER · 选品档案</div>
         <h2>每个品，<br/>一份<span class="acid-ul">档案</span>．</h2>
       </div>
       <p>点击任意推荐，展开完整数据：<span class="nobreak">GMV 趋势</span>、转化率、达人视频、评论情感、竞品对比、<span class="nobreak">1688 供应商</span>——一屏给你所有决策依据。</p>
@@ -1291,7 +1352,7 @@ footer .colophon {
 <!-- ============ MANIFESTO ============ -->
 <section class="manifesto">
   <div class="wrap reveal">
-    <div class="label" style="color: var(--ink); margin-bottom: 40px;">03 · STATEMENT</div>
+    <div class="label" style="color: var(--ink); margin-bottom: 40px;">03 · STATEMENT · 宣言</div>
     <h2>
       不做 <span class="cross">数据面板</span>．<br/>
       做<em style="font-style: normal;">替你思考</em>的 <span class="nobreak">AI Agent</span>．
@@ -1305,11 +1366,11 @@ footer .colophon {
   <div class="wrap">
     <div class="head reveal">
       <div>
-        <div class="label" style="margin-bottom: 18px;">04 · 对比</div>
+        <div class="label" style="margin-bottom: 18px;">04 · AGAINST · 对比</div>
         <h2>它们 <span style="color: var(--muted);">vs</span> 我们</h2>
       </div>
       <p style="color: var(--ink-2); font-size: 16px; max-width: 48ch;">
-        <span class="nobreak">Kalodata</span>、<span class="nobreak">FastMoss</span> 为月 GMV <span class="nobreak">十万+</span> 的品牌方设计。我们为月 GMV <span class="nobreak">3k–30k</span> 的中国卖家打造。
+        <span class="nobreak">Kalodata</span>、<span class="nobreak">FastMoss</span> 为月 GMV <span class="nobreak">十万+</span> 的品牌方设计。我们为<b>刚开始做 <span class="nobreak">TikTok Shop</span> 的中国新手</b>打造。
       </p>
     </div>
 
@@ -1362,7 +1423,7 @@ footer .colophon {
   <div class="wrap">
     <div class="kicker reveal">
       <div>
-        <div class="label" style="margin-bottom: 18px;">05 · 核心能力</div>
+        <div class="label" style="margin-bottom: 18px;">05 · FEATURES · 核心能力</div>
         <h2>只做<span class="acid-ul">四件事</span>．<br/>做到极致．</h2>
       </div>
       <a href="#pricing" class="btn btn-ghost">查看定价 →</a>
@@ -1375,9 +1436,9 @@ footer .colophon {
         <h3>你的浏览器里，<br/>多一位选品经理．</h3>
         <p>自然语言输入，AI 返回带推理的推荐卡片。数据来源、竞品对比、毛利预估一并附上。可持续追问。</p>
         <div class="spark">
-          <div><div class="v">2.3s</div><div class="k">平均响应</div></div>
-          <div><div class="v">94%</div><div class="k">推荐命中</div></div>
-          <div><div class="v">100%</div><div class="k">可追问</div></div>
+          <div><div class="v">秒级</div><div class="k">流式响应</div></div>
+          <div><div class="v">来源</div><div class="k">每条附据</div></div>
+          <div><div class="v">追问</div><div class="k">上下文不忘</div></div>
         </div>
       </div>
 
@@ -1443,7 +1504,7 @@ footer .colophon {
   <div class="wrap">
     <div class="head reveal">
       <div>
-        <div class="label" style="margin-bottom: 18px;">06 · 定价</div>
+        <div class="label" style="margin-bottom: 18px;">06 · PRICING · 定价</div>
         <h2>一档主力，<br/>够<span class="acid-ul">跑通闭环</span>．</h2>
       </div>
       <p>不搞选择恐惧。主力只一档，够用；免费版和团队版作为两端。</p>
@@ -1453,9 +1514,9 @@ footer .colophon {
       <div class="left">
         <span class="tag">MOST POPULAR</span>
         <h3>Professional</h3>
-        <div class="desc">月 GMV <span class="nobreak">3k–30k 美金</span>的成长期卖家。功能全开，不设限。</div>
-        <div class="price"><s>¥198</s>¥99<span class="per">/ MO</span></div>
-        <div class="note">✱ 前 100 名终身 5 折 · 年付再免 2 个月</div>
+        <div class="desc">从<b>第一天开店</b>到<b>月出几百单</b>，你需要的 AI 选品顾问。功能全开，不设限。</div>
+        <div class="price"><s>¥99</s>¥9.9<span class="per">/ 首周</span></div>
+        <div class="note">✱ 首周 ¥9.9 · 首月 ¥79 · 次月 ¥99 · 年付 ¥899（省 25%） · 前 100 名预约者锁终身 5 折</div>
         <a href="/chat" class="btn btn-acid">立即免费试用 →</a>
       </div>
       <div class="right">
@@ -1485,10 +1546,10 @@ footer .colophon {
       </div>
       <div class="card">
         <h4>Team</h4>
-        <div class="p">¥299 / 月</div>
+        <div class="p">¥399 / 月 · 5 席</div>
         <ul>
-          <li>无限对话选品</li>
-          <li>5 人协作席位</li>
+          <li>Pro 全部功能</li>
+          <li>共享工作区 + 席位管理</li>
           <li>API 对接 + 专属客服</li>
         </ul>
       </div>
@@ -1501,7 +1562,7 @@ footer .colophon {
   <div class="wrap">
     <div class="head reveal">
       <div>
-        <div class="label" style="margin-bottom: 18px;">07 · 常见问题</div>
+        <div class="label" style="margin-bottom: 18px;">07 · FAQ · 常见问题</div>
         <h2>你可能<br/>想知道的。</h2>
       </div>
       <p style="color: var(--ink-2); font-size: 16px;">还有其他问题？给我们发邮件：<br/><b style="color: var(--ink);">hi@trendradar.ai</b></p>
@@ -1521,7 +1582,7 @@ footer .colophon {
     </details>
     <details>
       <summary>现在能用吗？什么时候正式上线？<span class="plus">+</span></summary>
-      <p>目前处于内测阶段，计划 <span class="nobreak">2 个月</span>内开放给等候名单用户。前 <span class="nobreak">100 名</span>终身 <span class="nobreak">5 折</span>优惠，加入等候名单锁定资格。</p>
+      <p>核心功能现在就能免费试用。Pro 版计划 <span class="nobreak">2 个月</span>内全量开放。前 <span class="nobreak">100 名</span>预约者锁终身 <span class="nobreak">5 折</span>——等候名单即将开放，留意邮箱通知。</p>
     </details>
     <details>
       <summary>支持其他平台吗？<span class="plus">+</span></summary>
@@ -1534,18 +1595,25 @@ footer .colophon {
 <section class="cta" id="cta">
   <div class="acid-block"></div>
   <div class="wrap inner reveal">
-    <div class="label" style="color: var(--acid); margin-bottom: 28px;">08 · Pro 版抢先体验</div>
-    <h2>已经<span class="acid-u">上线</span>。<br/>Pro 版<span style="color: var(--acid);">.</span></h2>
-    <p>产品核心功能已经可以免费试用。留下邮箱，Pro 版上线时第一时间通知你，前 <span class="nobreak">100 名</span>锁定终身 <span class="nobreak">5 折</span>。</p>
+    <div class="label" style="color: var(--acid); margin-bottom: 28px;">08 · WAITLIST · Pro 抢先体验</div>
+    <h2>已经<span class="acid-u">能用</span>。<br/>Pro 版即将<span style="color: var(--acid);">开放</span>。</h2>
+    <p>核心功能现在就能免费试用。留邮箱预约 Pro 版上线通知——前 <span class="nobreak">100 位</span>锁终身 <span class="nobreak">5 折</span>。</p>
+    <div class="scarcity">PRIVATE BETA · 47 名中国卖家已加入 · 剩余 53 席</div>
+
     <form id="wlform">
-      <input type="email" name="email" required placeholder="你的邮箱（Pro 上线时第一时间通知你）" />
+      <input type="email" name="email" required placeholder="YOUR@EMAIL.COM" />
       <!-- Anti-spam honeypot (bots fill this; humans won't) -->
-      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
-      <button type="submit" class="btn" id="wl-submit">锁定 5 折名额 →</button>
+      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <button type="submit" class="btn" id="wl-submit">预约 · 锁 5 折 →</button>
     </form>
     <div id="success-msg">✓ 已收到。Pro 上线第一时间通知你。</div>
-    <div id="error-msg" style="display:none; margin-top:18px; padding:14px 18px; background:#1a0000; color:#ff8866; font-family:var(--mono); font-size:13px; border-left:2px solid var(--acid);">提交失败，请稍后重试，或直接邮件 hi@trendradar.ai</div>
-    <div class="small">不发营销邮件 · 仅产品上线和月度更新</div>
+    <div id="error-msg">提交失败，请稍后重试，或直接邮件 hi@trendradar.ai</div>
+
+    <ul class="trust-strip">
+      <li><span class="t-num">01</span> 零垃圾邮件 · 一键退订</li>
+      <li><span class="t-num">02</span> 数据源 · TikTok Shop 官方 + 1688</li>
+      <li><span class="t-num">03</span> 前 100 位预约者 · 终身 5 折</li>
+    </ul>
   </div>
 </section>
 
@@ -1562,19 +1630,19 @@ footer .colophon {
       </p>
     </div>
     <div>
-      <h5>Product</h5>
+      <h4>Product</h4>
       <a href="#features">功能</a>
       <a href="#pricing">定价</a>
       <a href="#console">演示</a>
     </div>
     <div>
-      <h5>Company</h5>
+      <h4>Company</h4>
       <a href="#">关于我们</a>
       <a href="mailto:hi@trendradar.ai">联系</a>
       <a href="#">加入我们</a>
     </div>
     <div>
-      <h5>Legal</h5>
+      <h4>Legal</h4>
       <a href="#">隐私政策</a>
       <a href="#">服务条款</a>
       <a href="#">Cookie</a>
@@ -1793,10 +1861,8 @@ footer .colophon {
       rendered = true;
       const ctx = canvas.getContext('2d');
 
-    // Orange gradient for bars: solid top → faded bottom
-    const barGrad = ctx.createLinearGradient(0, 0, 0, 320);
-    barGrad.addColorStop(0, 'rgba(255, 79, 26, 1)');
-    barGrad.addColorStop(1, 'rgba(255, 79, 26, 0.18)');
+    // DESIGN.md §1.3: no gradients. Solid acid fill for bars.
+    const barGrad = '#FF4F1A';
 
     const MONO = 'JetBrains Mono, ui-monospace, monospace';
     const INK = '#000000';

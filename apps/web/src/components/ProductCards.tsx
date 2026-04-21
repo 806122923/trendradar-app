@@ -387,11 +387,11 @@ function PickCard({ pick }: { pick: Pick }) {
         {/* Action */}
         {pick.action && (
           <div
-            className="border border-ink p-4"
-            style={{ borderLeftWidth: 4, borderLeftColor: "#FF4F1A" }}
+            className="bg-ink text-paper p-4"
+            style={{ borderRadius: 2 }}
           >
-            <div className="tr-label text-ink mb-1.5">D · NEXT ACTION</div>
-            <p className="text-[15px] leading-relaxed text-ink">{pick.action}</p>
+            <div className="tr-label text-acid mb-1.5">D · NEXT ACTION</div>
+            <p className="text-[15px] leading-relaxed text-paper">{pick.action}</p>
           </div>
         )}
       </div>
@@ -405,8 +405,8 @@ function PickCard({ pick }: { pick: Pick }) {
 function SummaryLine({ text }: { text: string }) {
   if (!text) return null;
   return (
-    <section className="tr-card p-5" style={{ borderLeftWidth: 4, borderLeftColor: "#FF4F1A" }}>
-      <div className="tr-label mb-2">02 · ONE-LINER</div>
+    <section className="tr-card p-5 border-t-2 border-acid" style={{ borderRadius: 2 }}>
+      <div className="tr-label text-acid mb-2">02 · ONE-LINER</div>
       <p className="font-display text-xl leading-snug text-ink">{text}</p>
     </section>
   );

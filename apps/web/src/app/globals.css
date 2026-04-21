@@ -136,6 +136,32 @@ body {
   }
 }
 
+/* ============================================================
+   Global focus ring — WCAG 2.4.7 Focus Visible (mirrors landing.html)
+============================================================ */
+*:focus-visible {
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   Skeleton breathing — replaces Tailwind animate-pulse
+   DESIGN.md §9.3: 1% opacity 呼吸，非 50% 淡入淡出
+============================================================ */
+@keyframes tr-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.97;
+  }
+}
+.tr-breathe {
+  animation: tr-breathe 1.8s ease-in-out infinite;
+}
+
 /* Scrollbars — match the minimal aesthetic */
 ::-webkit-scrollbar {
   width: 10px;

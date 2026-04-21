@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kalodata 替代品 · 中文版的 TikTok Shop 选品 Agent | TrendRadar</title>
+<meta name="description" content="Kalodata 月费 $99（约 ¥700），英文界面让新手看不懂。TrendRadar ¥99/月，中文原生 AI Agent，替你判断要不要做这个品。" />
+<meta name="keywords" content="Kalodata 替代,Kalodata 中文版,Kalodata alternative,TikTok Shop 选品工具,Kalodata 便宜" />
+<link rel="canonical" href="https://trendradar-app-sigma.vercel.app/alternatives/kalodata" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Kalodata 替代品 · 中文版的 TikTok Shop 选品 Agent" />
+<meta property="og:description" content="Kalodata $99/月太贵、看不懂英文？TrendRadar ¥99/月，中文 AI Agent，替你判断要不要做这个品。" />
+<meta property="og:image" content="https://trendradar-app-sigma.vercel.app/og-image.png" />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Ctext x='16' y='23' font-family='Arial Black' font-size='22' fill='%23FF4F1A' text-anchor='middle'%3E%E2%96%B2%3C/text%3E%3C/svg%3E" type="image/svg+xml" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+:root {
+  --bg: #ffffff;
+  --ink: #000000;
+  --ink-2: #525252;
+  --muted: #8a8a8a;
+  --line: #e5e5e5;
+  --line-2: #f0f0f0;
+  --acid: #FF4F1A;
+  --green: #00C853;
+  --display: 'Space Grotesk', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--acid); outline-offset: 2px; border-radius: 2px; }
+html { scroll-behavior: smooth; hanging-punctuation: first last allow-end; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); font-size: 15px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  word-break: keep-all; overflow-wrap: anywhere;
+}
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4 { text-wrap: balance; word-break: keep-all; font-family: var(--display); letter-spacing: -0.02em; margin: 0; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+nav .inner { display: flex; justify-content: space-between; align-items: center; height: 64px; }
+nav .logo { font-family: var(--display); font-weight: 700; font-size: 18px; }
+nav .logo span { color: var(--acid); }
+nav .links { display: flex; gap: 28px; font-size: 14px; }
+nav .links a { color: var(--ink-2); transition: color .15s; }
+nav .links a:hover { color: var(--ink); }
+nav .cta { background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 2px; font-size: 13px; font-weight: 500; }
+nav .cta:hover { background: var(--acid); }
+
+/* HEADER */
+.hero { padding: 80px 0 40px; border-bottom: 1px solid var(--line); }
+.label {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--acid); margin-bottom: 24px; display: inline-block;
+}
+.label-ink { color: var(--ink); }
+h1 {
+  font-size: clamp(36px, 5.5vw, 56px); font-weight: 600; line-height: 1.05; margin-bottom: 20px;
+}
+h1 .hl { background: var(--acid); color: var(--bg); padding: 0 8px; }
+.sub { font-size: 18px; color: var(--ink-2); max-width: 640px; line-height: 1.55; }
+
+/* TL;DR */
+.tldr {
+  margin: 40px 0;
+  border: 1px solid var(--ink);
+  padding: 28px 32px;
+  border-radius: 2px;
+  background: var(--line-2);
+}
+.tldr .tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--acid); margin-bottom: 10px; }
+.tldr p { margin: 0; font-size: 16px; line-height: 1.7; color: var(--ink); }
+.tldr p + p { margin-top: 10px; }
+
+/* SECTION */
+section { padding: 64px 0; border-bottom: 1px solid var(--line); }
+section h2 { font-size: clamp(26px, 3.5vw, 36px); font-weight: 600; margin-bottom: 16px; line-height: 1.15; }
+section .intro { font-size: 16px; color: var(--ink-2); max-width: 720px; margin-bottom: 36px; }
+
+/* COMPARE TABLE */
+table.compare { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+table.compare th, table.compare td { padding: 16px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.compare th {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted); font-weight: 500; background: var(--line-2);
+}
+table.compare th.ours { color: var(--acid); background: var(--ink); }
+table.compare th.them { color: var(--ink); }
+table.compare td.col-label { font-weight: 500; color: var(--ink-2); font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+table.compare td.col-ours { background: #fff8f5; }
+table.compare .yes { color: var(--acid); font-weight: 600; }
+table.compare .no { color: var(--muted); }
+
+/* TWO-COL WHO-FOR */
+.who-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.who-card { border: 1px solid var(--line); padding: 28px; border-radius: 2px; }
+.who-card.ours { border: 2px solid var(--ink); background: var(--line-2); }
+.who-card h3 { font-size: 20px; margin-bottom: 12px; }
+.who-card .sub-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--acid); text-transform: uppercase; margin-bottom: 16px; }
+.who-card ul { padding-left: 18px; margin: 0; }
+.who-card li { margin-bottom: 8px; color: var(--ink-2); font-size: 14.5px; line-height: 1.55; }
+.who-card li::marker { color: var(--acid); }
+@media (max-width: 720px) { .who-grid { grid-template-columns: 1fr; } }
+
+/* QUOTE */
+.quote {
+  border-left: 3px solid var(--acid); padding: 12px 0 12px 20px; margin: 24px 0;
+  font-size: 15.5px; color: var(--ink-2); font-style: italic;
+}
+.quote .who { display: block; font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* CTA */
+.cta-section { background: var(--ink); color: var(--bg); padding: 72px 0; border-bottom: none; }
+.cta-section h2 { color: var(--bg); }
+.cta-section .intro { color: #b8b8b8; }
+.cta-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 28px; }
+.btn { display: inline-block; padding: 14px 22px; border-radius: 2px; font-weight: 500; font-size: 15px; transition: background .15s; }
+.btn-acid { background: var(--acid); color: var(--bg); }
+.btn-acid:hover { background: #ff6a3a; }
+.btn-ghost { background: transparent; color: var(--bg); border: 1px solid #444; }
+.btn-ghost:hover { border-color: var(--acid); color: var(--acid); }
+.cta-section .note { font-size: 13px; color: var(--muted); margin-top: 16px; font-family: var(--mono); letter-spacing: 0.04em; }
+
+/* FOOTER */
+footer { padding: 40px 0; font-size: 13px; color: var(--muted); }
+footer a { color: var(--ink-2); }
+footer a:hover { color: var(--acid); }
+footer .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+
+/* MOBILE */
+@media (max-width: 680px) {
+  nav .links { display: none; }
+  section { padding: 48px 0; }
+  .hero { padding: 56px 0 32px; }
+  .tldr { padding: 22px 20px; }
+  table.compare th, table.compare td { padding: 12px 10px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap inner">
+    <a href="/" class="logo">Trend<span>Radar</span></a>
+    <div class="links">
+      <a href="/">首页</a>
+      <a href="/alternatives/">对比</a>
+      <a href="/#pricing">定价</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <a href="/chat" class="cta">立即试用 →</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="label">VS · Kalodata Alternative</span>
+    <h1>
+      找一个 <span class="hl">Kalodata 替代</span>？<br/>
+      中文版、便宜 7 倍、替你拍板。
+    </h1>
+    <p class="sub">
+      Kalodata $99/月（≈ ¥700）让很多新手卖家还没出第一单就先交学费。
+      TrendRadar 是面向中国新手的 TikTok Shop 美区选品 Agent——
+      ¥99/月、全中文、不是面板给你看图表，而是替你判断要不要做这个品。
+    </p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tldr">
+    <div class="tag">TL;DR · 3 句话</div>
+    <p><strong>Kalodata</strong>：英文数据面板，$99+ 月起，适合月 GMV 十万美金+的品牌方把数据挖深。</p>
+    <p><strong>TrendRadar</strong>：中文 AI Agent，¥99/月（首周 ¥9.9），适合零经验到月几百单的新手卖家——直接问一句中文，出 Top 3 推荐 + 推理链。</p>
+    <p><strong>一句话选</strong>：你看得懂英文仪表盘 + 预算 $99+ → Kalodata；你想要一句中文问完、少踩坑、预算几十块 → TrendRadar。</p>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <span class="label label-ink">01 · COMPARE · 对照表</span>
+    <h2>同是 TikTok Shop 工具，<br/>差在哪？</h2>
+    <p class="intro">8 个维度横向对比，挑你关心的看。</p>
+
+    <table class="compare">
+      <thead>
+        <tr>
+          <th style="width: 26%;">&nbsp;</th>
+          <th class="ours" style="width: 37%;">TrendRadar</th>
+          <th class="them" style="width: 37%;">Kalodata</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-label">月费起步</td>
+          <td class="col-ours"><span class="yes">¥99 / 月</span><br/><small style="color:var(--muted)">首周 ¥9.9 · 年付 ¥899 省 25%</small></td>
+          <td>$99 / 月 ≈ ¥700<br/><small style="color:var(--muted)">Professional 档</small></td>
+        </tr>
+        <tr>
+          <td class="col-label">界面语言</td>
+          <td class="col-ours"><span class="yes">中文原生</span>（问答、推理、导出）</td>
+          <td>英文主（有翻译插件常翻不对）</td>
+        </tr>
+        <tr>
+          <td class="col-label">产品形态</td>
+          <td class="col-ours"><span class="yes">AI Agent</span>——替你判断 + 给下一步</td>
+          <td>数据面板——给你图表，你自己判断</td>
+        </tr>
+        <tr>
+          <td class="col-label">适合人群</td>
+          <td class="col-ours">零经验 — 月 GMV 3k 美金新手</td>
+          <td>月 GMV 10 万+ 品牌 / 成熟卖家</td>
+        </tr>
+        <tr>
+          <td class="col-label">推理链展示</td>
+          <td class="col-ours"><span class="yes">✓</span> 每条推荐附数据来源 + 推理过程</td>
+          <td><span class="no">—</span> 只给数据，不给结论</td>
+        </tr>
+        <tr>
+          <td class="col-label">1688 反搜 · 货源</td>
+          <td class="col-ours"><span class="yes">✓</span> 图搜 1688 同款拿报价</td>
+          <td><span class="no">—</span> 不提供中国供应链</td>
+        </tr>
+        <tr>
+          <td class="col-label">利润测算</td>
+          <td class="col-ours"><span class="yes">✓</span> 输入成本 → 输出定价 + 毛利 + 盈亏 ROAS</td>
+          <td>部分版本有，需自行取数</td>
+        </tr>
+        <tr>
+          <td class="col-label">试用门槛</td>
+          <td class="col-ours"><span class="yes">¥9.9 / 7 天</span>（一杯咖啡）</td>
+          <td>通常 $99 起（部分档 $45.9）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="label label-ink">02 · WHY · 为什么你在找替代</span>
+    <h2>这 3 种情况，<br/>换一个工具更划算。</h2>
+
+    <div class="quote">
+      "Kalodata useful but expensive for sellers still testing their first product."
+      <span class="who">— Reddit · 跨境 seller</span>
+    </div>
+    <div class="quote">
+      "还没出第一单就先交 700 多块工具费，真的会怀疑人生。"
+      <span class="who">— 小红书 · 新手卖家</span>
+    </div>
+    <div class="quote">
+      "Kalodata 的 dashboard 点半天找不到我想看的那一栏。"
+      <span class="who">— Reddit · 中国卖家</span>
+    </div>
+
+    <p style="color: var(--ink-2); margin-top: 28px; font-size: 15.5px; line-height: 1.75;">
+      <strong>1 · 预算撑不住 $99/月</strong>——对零收入新手来说相当于先交学费。<br/>
+      <strong>2 · 英文界面吃不消</strong>——翻译插件还经常把数据字段翻错，每天多花 2–3 小时仍判断不出来。<br/>
+      <strong>3 · 只给数据不给结论</strong>——面板再漂亮，不会判断还是踩坑。新手要的不是"更多数据"，是"一句话问完事"。
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="label label-ink">03 · FIT · 谁适合谁</span>
+    <h2>诚实说：<br/>两个都不是万能的。</h2>
+
+    <div class="who-grid">
+      <div class="who-card ours">
+        <div class="sub-label">Pick TrendRadar if…</div>
+        <h3>你是中国新手卖家</h3>
+        <ul>
+          <li>月 GMV 在零到几千美金之间</li>
+          <li>想要中文对话、一句话出答案</li>
+          <li>预算敏感，希望先花几十块试水</li>
+          <li>踩过坑 / 怕再踩坑，需要 AI 替你判断</li>
+          <li>打算做美区 10–50 美金 "小而美" 品类</li>
+          <li>需要 1688 反搜闭环（选品 + 货源 + 利润）</li>
+        </ul>
+      </div>
+      <div class="who-card">
+        <div class="sub-label">Pick Kalodata if…</div>
+        <h3>你是成熟品牌 / 多店卖家</h3>
+        <ul>
+          <li>月 GMV 10 万美金以上，预算充足</li>
+          <li>英文流利，习惯看专业数据仪表盘</li>
+          <li>需要挖深的历史数据 + API 导出</li>
+          <li>已经有品，只是在找更多 benchmarking</li>
+          <li>需要对接 TikTok Shop + Shopify 多平台 BI</li>
+          <li>不需要 1688 供应链 / 中文服务</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="wrap">
+    <span class="label">04 · TRY · 试一句就知道</span>
+    <h2>省下 $99 订阅，<br/>还能再试 7 个品。</h2>
+    <p class="intro">不用注册也能先聊一句。首周 ¥9.9，随时取消。</p>
+    <div class="cta-row">
+      <a href="/chat" class="btn btn-acid">用一句中文问一下 →</a>
+      <a href="/#pricing" class="btn btn-ghost">查看完整定价</a>
+    </div>
+    <p class="note">↳ 前 100 位预约上线通知 · 终身 5 折</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <div>© 2026 TrendRadar · 面向 TikTok Shop 美区新手卖家的中文 AI 选品 Agent</div>
+    <div>
+      <a href="/alternatives/">所有对比</a> &nbsp;·&nbsp;
+      <a href="/alternatives/didadog">vs 嘀嗒狗</a> &nbsp;·&nbsp;
+      <a href="/alternatives/echotik">vs EchoTik</a> &nbsp;·&nbsp;
+      <a href="/">返回首页</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

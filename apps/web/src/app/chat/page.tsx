@@ -145,7 +145,7 @@ function ChatInner() {
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="font-mono text-[11px] tracking-label text-muted hover:text-ink transition-colors"
+              className="font-mono text-[11px] tracking-label text-muted hover:text-ink focus-visible:text-ink transition-colors"
             >
               ← 首页
             </Link>
@@ -181,9 +181,12 @@ function ChatInner() {
           <section className="mt-10 max-w-3xl">
             <div className="tr-label text-muted mb-3">01 · QUERY</div>
             <form onSubmit={submit}>
-              <div className="relative border border-ink" style={{ borderRadius: 2 }}>
+              <div
+                className="relative border border-ink transition-colors focus-within:border-acid"
+                style={{ borderRadius: 2 }}
+              >
                 <textarea
-                  className="block w-full min-h-[140px] p-5 pr-4 pb-16 text-[15px] leading-relaxed text-ink placeholder:text-muted bg-paper focus:outline-none resize-none"
+                  className="block w-full min-h-[140px] p-5 pr-4 pb-16 text-[15px] leading-relaxed text-ink placeholder:text-muted bg-paper focus:outline-none focus-visible:outline-none resize-none"
                   style={{ borderRadius: 2 }}
                   placeholder="例：给我 3 个美区 50 美金以内、家居类、最近 7 天增速最快的品"
                   value={query}
@@ -200,8 +203,12 @@ function ChatInner() {
                     }
                   }}
                 />
-                <div className="absolute left-5 bottom-5 font-mono text-[11px] tracking-label text-muted">
-                  按 ⌘/CTRL + ENTER 快速提交
+                <div className="absolute left-5 bottom-5 font-mono text-[11px] tracking-label">
+                  {busy ? (
+                    <span className="text-acid">ANALYZING · {elapsed.toFixed(1)}s</span>
+                  ) : (
+                    <span className="text-muted">按 ⌘/CTRL + ENTER 快速提交</span>
+                  )}
                 </div>
                 <button
                   type="submit"
@@ -279,10 +286,10 @@ function ChatInner() {
         {/* ============ ERROR ============ */}
         {err && (
           <section
-            className="mb-6 tr-card p-5"
-            style={{ borderLeftWidth: 4, borderLeftColor: "#FF4F1A" }}
+            className="mb-6 tr-card p-5 border-t-2 border-acid"
+            style={{ borderRadius: 2 }}
           >
-            <div className="tr-label text-acid mb-2">ERROR</div>
+            <div className="tr-label text-acid mb-2">! ERROR</div>
             <pre className="font-mono text-[12px] text-ink whitespace-pre-wrap break-words">
               {err}
             </pre>
@@ -312,11 +319,11 @@ function ChatInner() {
         {/* ============ RESULTS (parse failed) ============ */}
         {done && !parsed && response && (
           <section
-            className="tr-card p-5"
-            style={{ borderLeftWidth: 4, borderLeftColor: "#FF4F1A" }}
+            className="tr-card p-5 border-t-2 border-acid"
+            style={{ borderRadius: 2 }}
           >
             <div className="tr-label text-acid mb-2">
-              RAW OUTPUT · 无法解析为结构化卡片
+              ! RAW OUTPUT · 无法解析为结构化卡片
             </div>
             <pre className="text-[14px] text-ink whitespace-pre-wrap break-words font-mono">
               {response}
@@ -347,7 +354,7 @@ function StreamingSkeleton() {
   return (
     <div className="space-y-4">
       {/* Metrics strip placeholder */}
-      <div className="grid grid-cols-4 border border-ink animate-pulse">
+      <div className="grid grid-cols-4 border border-ink tr-breathe">
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
@@ -359,7 +366,7 @@ function StreamingSkeleton() {
         ))}
       </div>
       {/* Chart placeholder */}
-      <div className="tr-card p-6 animate-pulse">
+      <div className="tr-card p-6 tr-breathe">
         <div className="h-2 w-24 bg-line mb-4" />
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -377,7 +384,7 @@ function StreamingSkeleton() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="tr-card animate-pulse"
+          className="tr-card tr-breathe"
           style={{ animationDelay: `${i * 150}ms` }}
         >
           <div className="flex items-stretch border-b border-ink">
