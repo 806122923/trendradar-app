@@ -9,6 +9,12 @@ const nextConfig = {
     return {
       beforeFiles: [
         { source: "/", destination: "/landing.html" },
+        // Clean URLs for /alternatives/* — no .html suffix needed
+        { source: "/alternatives", destination: "/alternatives/index.html" },
+        { source: "/alternatives/", destination: "/alternatives/index.html" },
+        { source: "/alternatives/kalodata", destination: "/alternatives/kalodata.html" },
+        { source: "/alternatives/didadog", destination: "/alternatives/didadog.html" },
+        { source: "/alternatives/echotik", destination: "/alternatives/echotik.html" },
       ],
     };
   },
