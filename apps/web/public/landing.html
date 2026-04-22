@@ -62,26 +62,26 @@
   })();
 </script>
 
-<!-- Plausible Analytics (privacy-friendly, no cookies). Activated at runtime based on CONFIG.plausibleDomain below. -->
+<!-- Plausible Analytics (privacy-friendly, no cookies). Activated by the
+     <meta name="plausible-domain"> tag below. Using the extended `script`
+     variant that auto-tracks outbound links + file downloads, plus allows
+     `window.plausible('Event Name', { props: {...} })` custom events. -->
+<meta name="plausible-domain" content="trendradar-app-sigma.vercel.app" />
 <script>
   (function() {
-    // Read the domain from a later-defined CONFIG object, or from a data attribute.
-    // To enable: set CONFIG.plausibleDomain = 'trendradar.ai' in the main script.
-    const meta = document.querySelector('meta[name="plausible-domain"]');
-    const domain = meta ? meta.getAttribute('content') : '';
-    if (domain) {
-      const s = document.createElement('script');
-      s.defer = true;
-      s.setAttribute('data-domain', domain);
-      s.src = 'https://plausible.io/js/script.js';
-      document.head.appendChild(s);
-      window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments); };
-    }
+    var meta = document.querySelector('meta[name="plausible-domain"]');
+    var domain = meta ? meta.getAttribute('content') : '';
+    if (!domain) return;
+    var s = document.createElement('script');
+    s.defer = true;
+    s.setAttribute('data-domain', domain);
+    // Extended tracker: standard pageviews + outbound links + file downloads.
+    s.src = 'https://plausible.io/js/script.outbound-links.file-downloads.js';
+    document.head.appendChild(s);
+    // Queue custom events before the script has finished loading.
+    window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments); };
   })();
 </script>
-<!-- To enable analytics, uncomment and set your domain:
-<meta name="plausible-domain" content="trendradar.ai" />
--->
 
 <style>
 /* ============================================================

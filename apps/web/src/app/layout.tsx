@@ -1,6 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
+
+// Plausible Analytics — privacy-friendly, no cookies.
+// Also injected into the static landing + alternatives HTML pages so every
+// route reports to the same `data-domain`.
+const PLAUSIBLE_DOMAIN = "trendradar-app-sigma.vercel.app";
 
 // Match the orange landing page's typography. Latin subset is fine —
 // Chinese glyphs fall back to PingFang SC / Microsoft YaHei via CSS.
@@ -82,6 +88,17 @@ export default function RootLayout({
     >
       <body className="bg-white text-black antialiased font-sans">
         {children}
+        {/* Plausible pageviews + outbound links + file downloads.
+            `afterInteractive` so it runs after hydration without blocking first paint. */}
+        <Script
+          defer
+          data-domain={PLAUSIBLE_DOMAIN}
+          src="https://plausible.io/js/script.outbound-links.file-downloads.js"
+          strategy="afterInteractive"
+        />
+        <Script id="plausible-queue" strategy="afterInteractive">
+          {`window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments); };`}
+        </Script>
       </body>
     </html>
   );
