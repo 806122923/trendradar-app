@@ -1042,18 +1042,21 @@ section.cta .small {
   margin-top: 24px; font-family: var(--mono); font-size: 11px;
   letter-spacing: 0.1em; color: #737373;
 }
-#success-msg {
-  display: none; margin-top: 24px; padding: 14px 18px;
-  background: var(--acid); color: var(--ink);
-  font-family: var(--mono); font-size: 13px;
-}
-
-/* Error message — DESIGN.md §9.4: no border-left stripe, full 1px acid outline */
-#error-msg {
-  display: none; margin-top: 24px; padding: 14px 18px;
-  background: transparent; color: var(--bg);
-  font-family: var(--mono); font-size: 13px;
+/* Tally.so iframe wrapper — sits on the dark CTA section.
+   Dark bg + thin acid border give the embed a branded frame. */
+.tally-wrap {
+  margin-top: 24px;
+  padding: 18px 16px;
+  background: #0b0b0b;
   border: 1px solid var(--acid);
+  max-width: 680px;
+}
+.tally-wrap iframe {
+  display: block;
+  width: 100%;
+  min-height: 240px;
+  background: transparent;
+  color-scheme: dark;
 }
 
 /* Scarcity bar above the form — DESIGN.md §4 Label style */
@@ -1125,8 +1128,7 @@ footer .colophon {
 .hero .status,
 .hero h1 .acid-mark,
 .plan-main .left .tag,
-.t-pain .count,
-#success-msg {
+.t-pain .count {
   color: var(--bg);
 }
 .hero .status .dot { background: var(--bg); }
@@ -1651,14 +1653,22 @@ footer .colophon {
     <p>核心功能现在就能免费试用。留邮箱预约 Pro 版上线通知——前 <span class="nobreak">100 位</span>锁终身 <span class="nobreak">5 折</span>。</p>
     <div class="scarcity">内测中 · 47 名中国卖家已加入 · 剩余 53 席</div>
 
-    <form id="wlform">
-      <input type="email" name="email" required placeholder="你的邮箱地址" />
-      <!-- Anti-spam honeypot (bots fill this; humans won't) -->
-      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
-      <button type="submit" class="btn" id="wl-submit">预约 · 锁 5 折 →</button>
-    </form>
-    <div id="success-msg">✓ 已收到。Pro 上线第一时间通知你。</div>
-    <div id="error-msg">提交失败，请稍后重试，或直接邮件 hi@trendradar.ai</div>
+    <!-- Tally.so embed · 表单在 https://tally.so/r/pbPg1Z
+         hideTitle=1 去掉 Tally 自带标题（上面 h2 已是标题）
+         transparentBackground=1 融入 landing 背景
+         dynamicHeight=1 高度自适应内容 -->
+    <div class="tally-wrap">
+      <iframe
+        data-tally-src="https://tally.so/embed/pbPg1Z?alignLeft=1&amp;hideTitle=1&amp;transparentBackground=1&amp;dynamicHeight=1"
+        loading="lazy"
+        width="100%"
+        height="276"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+        title="TrendRadar Waitlist"
+      ></iframe>
+    </div>
 
     <ul class="trust-strip">
       <li><span class="t-num">01</span> 零垃圾邮件 · 一键退订</li>
@@ -1710,60 +1720,45 @@ footer .colophon {
   //  CONFIG — replace the placeholders below before going live.
   // ============================================================
   const CONFIG = {
-    // 1. Get a free Formspree form from https://formspree.io/
-    //    Paste the endpoint here. Until you do, the form falls back to
-    //    a local-only "success" state so you can still demo the page.
-    formspreeEndpoint: 'https://formspree.io/f/mgoroaaw',
+    // Waitlist is now collected via the Tally embed in the CTA section.
+    // See https://tally.so/r/pbPg1Z for the form.
 
-    // 2. (Optional) Plausible Analytics domain. Leave empty to disable.
-    //    Sign up at https://plausible.io/ (or self-host Umami).
+    // (Optional) Plausible Analytics domain. Leave empty to disable.
+    // Sign up at https://plausible.io/ (or self-host Umami).
     plausibleDomain: '',  // e.g. 'trendradar.ai'
   };
 
   // Respect reduced motion
   const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ===== 1. Waitlist form (Formspree) =====
+  // ===== 1. Waitlist — Tally.so embed =====
+  // Tally loads the iframe via its widget script. We only need to:
+  //   (a) load the widget script
+  //   (b) listen for the form-submit postMessage so we can fire a Plausible event
+  //       (and eventually celebrate with a custom thank-you UX)
   (function() {
-    const form = document.getElementById('wlform');
-    const success = document.getElementById('success-msg');
-    const error = document.getElementById('error-msg');
-    const btn = document.getElementById('wl-submit');
-    const endpoint = CONFIG.formspreeEndpoint;
-    const configured = endpoint && !endpoint.includes('YOUR_FORM_ID');
+    // Load Tally widget
+    var s = document.createElement('script');
+    s.src = 'https://tally.so/widgets/embed.js';
+    s.async = true;
+    s.onerror = function() { console.warn('[TrendRadar] Tally widget failed to load'); };
+    document.head.appendChild(s);
 
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      error.style.display = 'none';
-
-      // Fallback demo mode: no Formspree configured yet → just show success.
-      if (!configured) {
-        console.warn('[TrendRadar] Formspree endpoint not configured. Set CONFIG.formspreeEndpoint to capture real emails.');
-        form.style.display = 'none';
-        success.style.display = 'block';
-        return;
-      }
-
-      btn.textContent = '提交中…';
-      btn.disabled = true;
-
+    // Tally posts a message on form submission — fire Plausible + dispatch
+    // a window event so other parts of the page can react.
+    window.addEventListener('message', function(event) {
+      if (typeof event.data !== 'string') return;
       try {
-        const data = new FormData(form);
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          body: data,
-          headers: { Accept: 'application/json' }
-        });
-        if (!res.ok) throw new Error('Network response not ok');
-        form.style.display = 'none';
-        success.style.display = 'block';
-        // Fire analytics event if Plausible is loaded
+        var data = JSON.parse(event.data);
+        if (data && data.includes && data.includes('Tally.FormSubmitted')) {
+          if (window.plausible) window.plausible('Waitlist Signup');
+          window.dispatchEvent(new CustomEvent('trendradar:waitlist-submitted'));
+        }
+      } catch (e) { /* not JSON, ignore */ }
+      // Tally sends { event: 'Tally.FormSubmitted', payload: {...} } in newer versions
+      if (event.data && typeof event.data === 'object' && event.data.event === 'Tally.FormSubmitted') {
         if (window.plausible) window.plausible('Waitlist Signup');
-      } catch (err) {
-        console.error(err);
-        error.style.display = 'block';
-        btn.textContent = '加入等候 →';
-        btn.disabled = false;
+        window.dispatchEvent(new CustomEvent('trendradar:waitlist-submitted'));
       }
     });
   })();
