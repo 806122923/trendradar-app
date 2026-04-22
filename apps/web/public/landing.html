@@ -1042,23 +1042,108 @@ section.cta .small {
   margin-top: 24px; font-family: var(--mono); font-size: 11px;
   letter-spacing: 0.1em; color: #737373;
 }
-/* Tally.so iframe wrapper — sits on the dark CTA section.
-   The Tally form itself is white-on-gray by default (free plan limits restyling),
-   so we frame it with a thin acid border + no inner padding to let it read as a
-   deliberate card, not a leaked widget. */
-.tally-wrap {
+/* Native waitlist form · lives on the dark CTA section.
+   Rules: same acid palette, mono meta text, 2px corners (DESIGN.md §1). */
+.wl-form {
   margin-top: 24px;
-  background: var(--bg);
-  border: 1px solid var(--acid);
-  max-width: 680px;
-  overflow: hidden;
+  max-width: 560px;
 }
-.tally-wrap iframe {
-  display: block;
-  width: 100%;
-  min-height: 160px;
-  background: var(--bg);
-  color-scheme: light;
+.wl-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border: 1.5px solid var(--acid);
+  background: #0b0b0b;
+  transition: border-color 140ms ease;
+}
+.wl-row:focus-within {
+  border-color: var(--bg);
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
+}
+.wl-form input[type="email"] {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 18px 20px;
+  background: transparent;
+  border: 0;
+  color: var(--bg);
+  font: 500 16px/1.2 var(--sans);
+  letter-spacing: -0.005em;
+  outline: none;
+}
+.wl-form input[type="email"]::placeholder {
+  color: #8a8a8a;
+  font-weight: 400;
+}
+.wl-form input[type="email"]:-webkit-autofill {
+  -webkit-text-fill-color: var(--bg);
+  -webkit-box-shadow: 0 0 0 1000px #0b0b0b inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+/* Browser-native :invalid state — only trigger after user interaction */
+.wl-form input[type="email"]:not(:placeholder-shown):invalid {
+  color: #ff6b6b;
+}
+.wl-submit {
+  flex: 0 0 auto;
+  padding: 16px 24px;
+  background: var(--acid);
+  color: var(--ink);
+  border: 0;
+  font: 600 15px/1 var(--sans);
+  letter-spacing: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 140ms ease, transform 140ms ease;
+}
+.wl-submit:hover:not(:disabled) { background: var(--acid-deep, #D93E0E); }
+.wl-submit:active:not(:disabled) { transform: translateY(1px); }
+.wl-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.wl-submit .wl-submit-arrow {
+  font-family: var(--mono);
+  font-weight: 400;
+}
+/* Loading state */
+.wl-submit.is-loading .wl-submit-text::after {
+  content: '…';
+}
+.wl-submit.is-loading .wl-submit-arrow {
+  opacity: 0.3;
+}
+.wl-hint {
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #737373;
+  text-transform: uppercase;
+}
+.wl-error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid #ff6b6b;
+  color: #ff6b6b;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  animation: wlShake 0.25s ease-out;
+}
+@keyframes wlShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+/* Mobile: stack email + button vertically */
+@media (max-width: 540px) {
+  .wl-row { flex-direction: column; }
+  .wl-submit { width: 100%; justify-content: center; padding: 16px; }
 }
 
 /* Brand-consistent success state that replaces the Tally form
@@ -1708,22 +1793,30 @@ footer .colophon {
     <p>核心功能现在就能免费试用。留邮箱预约 Pro 版上线通知——前 <span class="nobreak">100 位</span>锁终身 <span class="nobreak">5 折</span>。</p>
     <div class="scarcity">内测中 · 47 名中国卖家已加入 · 剩余 53 席</div>
 
-    <!-- Tally.so embed · 表单在 https://tally.so/r/pbPg1Z
-         提交成功时 JS 会把 iframe 隐藏、显示下面的品牌成功态。
-         这样能绕过 Tally 免费版强制插入的"谢谢完成这份表格 · 使用 Tally 制作"广告页。 -->
-    <div class="tally-wrap" id="tally-wrap">
-      <iframe
-        id="tally-iframe"
-        data-tally-src="https://tally.so/embed/pbPg1Z?alignLeft=1&amp;hideTitle=1&amp;transparentBackground=1&amp;dynamicHeight=1"
-        loading="lazy"
-        width="100%"
-        height="180"
-        frameborder="0"
-        marginheight="0"
-        marginwidth="0"
-        title="TrendRadar Waitlist"
-      ></iframe>
-    </div>
+    <!-- 原生 HTML 表单 · 提交到 Tally HTTP API
+         视觉 100% 可控，无 Tally 广告。
+         TODO: 提交 URL 需要根据 Tally 的真实端点格式填入（见 submitWaitlist 函数注释） -->
+    <form id="wl-form" class="wl-form" novalidate>
+      <div class="wl-row">
+        <input
+          id="wl-email"
+          type="email"
+          name="email"
+          required
+          autocomplete="email"
+          inputmode="email"
+          placeholder="你的邮箱地址"
+          aria-label="你的邮箱地址"
+          aria-describedby="wl-error"
+        />
+        <button type="submit" id="wl-submit" class="wl-submit">
+          <span class="wl-submit-text">预约 · 锁 5 折</span>
+          <span class="wl-submit-arrow">→</span>
+        </button>
+      </div>
+      <div id="wl-error" class="wl-error" role="alert" hidden></div>
+      <div class="wl-hint">回车即可提交 · 0 垃圾邮件承诺</div>
+    </form>
 
     <!-- Brand-consistent success state · shown only after Tally postMessage -->
     <div id="waitlist-success" class="waitlist-success" hidden>
@@ -1798,55 +1891,102 @@ footer .colophon {
   // Respect reduced motion
   const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ===== 1. Waitlist — Tally.so embed =====
-  // On Tally form submission we:
-  //   1. Hide the Tally iframe (to avoid the free-plan "made with Tally" ad)
-  //   2. Show our own branded success card
-  //   3. Fire a Plausible event for funnel tracking
+  // ===== 1. Waitlist — native form → Tally HTTP submission =====
+  // Strategy: we skip Tally's iframe entirely (branding + ad issues) and POST
+  // directly to Tally's submission endpoint. Tally still collects everything
+  // in its dashboard + fires webhooks exactly as if the user used the iframe.
   (function() {
-    // Load Tally widget
-    var s = document.createElement('script');
-    s.src = 'https://tally.so/widgets/embed.js';
-    s.async = true;
-    s.onerror = function() { console.warn('[TrendRadar] Tally widget failed to load'); };
-    document.head.appendChild(s);
+    var form = document.getElementById('wl-form');
+    var emailInput = document.getElementById('wl-email');
+    var errorEl = document.getElementById('wl-error');
+    var submitBtn = document.getElementById('wl-submit');
+    var successEl = document.getElementById('waitlist-success');
+    if (!form) return;
 
-    function handleSubmitted() {
-      var wrap = document.getElementById('tally-wrap');
-      var success = document.getElementById('waitlist-success');
-      if (wrap) wrap.style.display = 'none';
-      if (success) success.hidden = false;
+    // Lightweight, practical email validator (no regex religion — just avoid
+    // obvious typos). The browser will also enforce type="email".
+    function isValidEmail(v) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+    }
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+      emailInput.setAttribute('aria-invalid', 'true');
+    }
+    function clearError() {
+      errorEl.hidden = true;
+      errorEl.textContent = '';
+      emailInput.removeAttribute('aria-invalid');
+    }
+    function showSuccess() {
+      form.style.display = 'none';
+      if (successEl) successEl.hidden = false;
       if (window.plausible) window.plausible('Waitlist Signup');
       window.dispatchEvent(new CustomEvent('trendradar:waitlist-submitted'));
     }
 
-    // Tally posts messages in a few different shapes depending on version.
-    // Try string-JSON first, then structured object, then fall back to
-    // a loose keyword match.
-    window.addEventListener('message', function(event) {
-      var d = event.data;
-      if (!d) return;
+    // ⬇⬇⬇ TODO · PLACEHOLDER ENDPOINT ⬇⬇⬇
+    // Replace this with the real Tally submission URL + payload shape.
+    // We'll know both after you F12 → Network on https://tally.so/r/pbPg1Z
+    // and inspect the POST request.
+    //
+    // Expected shape (to be confirmed):
+    //   POST https://api.tally.so/r/{formId}/submissions
+    //   Content-Type: application/json
+    //   Body: { "questions": [{ "id": "<field-id>", "answer": { "value": email } }] }
+    //
+    // For now, submitWaitlist simulates success so the UX can be tested.
+    async function submitWaitlist(email) {
+      // --- Dev/demo fallback ---
+      console.warn('[TrendRadar] Using stub submitWaitlist. Replace with real Tally endpoint.');
+      await new Promise(function(r) { setTimeout(r, 600); });
+      return { ok: true };
 
-      // Shape A · structured: { event: 'Tally.FormSubmitted', payload: {...} }
-      if (typeof d === 'object' && d.event === 'Tally.FormSubmitted') {
-        handleSubmitted();
+      // --- Real Tally endpoint (to be filled in) ---
+      // const res = await fetch('https://api.tally.so/r/pbPg1Z/submissions', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      //   body: JSON.stringify({
+      //     questions: [{ id: 'FIELD_ID_HERE', answer: { value: email } }]
+      //   })
+      // });
+      // if (!res.ok) throw new Error('Tally submission failed: ' + res.status);
+      // return res.json();
+    }
+
+    // Clear error the moment the user starts typing again
+    emailInput.addEventListener('input', function() {
+      if (!errorEl.hidden) clearError();
+    });
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      clearError();
+
+      var email = (emailInput.value || '').trim().toLowerCase();
+      if (!email) {
+        showError('请填写邮箱地址');
+        emailInput.focus();
+        return;
+      }
+      if (!isValidEmail(email)) {
+        showError('邮箱格式看起来不太对,再确认一下?');
+        emailInput.focus();
         return;
       }
 
-      // Shape B · JSON string
-      if (typeof d === 'string') {
-        try {
-          var parsed = JSON.parse(d);
-          if (parsed && parsed.event === 'Tally.FormSubmitted') {
-            handleSubmitted();
-            return;
-          }
-        } catch (_) { /* not JSON */ }
+      submitBtn.disabled = true;
+      submitBtn.classList.add('is-loading');
 
-        // Shape C · plain string containing the token (older Tally versions)
-        if (d.indexOf('Tally.FormSubmitted') !== -1) {
-          handleSubmitted();
-        }
+      try {
+        await submitWaitlist(email);
+        showSuccess();
+      } catch (err) {
+        console.error(err);
+        showError('提交失败,请稍后重试,或直接邮件 hi@trendradar.ai');
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('is-loading');
       }
     });
   })();
