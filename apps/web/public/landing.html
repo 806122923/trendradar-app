@@ -1043,21 +1043,76 @@ section.cta .small {
   letter-spacing: 0.1em; color: #737373;
 }
 /* Tally.so iframe wrapper — sits on the dark CTA section.
-   Dark bg + thin acid border give the embed a branded frame. */
+   The Tally form itself is white-on-gray by default (free plan limits restyling),
+   so we frame it with a thin acid border + no inner padding to let it read as a
+   deliberate card, not a leaked widget. */
 .tally-wrap {
   margin-top: 24px;
-  padding: 18px 16px;
-  background: #0b0b0b;
+  background: var(--bg);
   border: 1px solid var(--acid);
   max-width: 680px;
+  overflow: hidden;
 }
 .tally-wrap iframe {
   display: block;
   width: 100%;
-  min-height: 240px;
-  background: transparent;
-  color-scheme: dark;
+  min-height: 160px;
+  background: var(--bg);
+  color-scheme: light;
 }
+
+/* Brand-consistent success state that replaces the Tally form
+   after submission. Visually matches the CTA section: dark card,
+   thin acid border, mono typography. */
+.waitlist-success {
+  margin-top: 24px;
+  padding: 36px 28px;
+  background: #0b0b0b;
+  border: 1px solid var(--acid);
+  max-width: 680px;
+  text-align: left;
+  animation: wsFadeIn 0.4s ease-out;
+}
+@keyframes wsFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.waitlist-success .ws-check {
+  display: inline-block;
+  width: 38px;
+  height: 38px;
+  line-height: 38px;
+  text-align: center;
+  background: var(--acid);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.waitlist-success h3 {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--bg);
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
+}
+.waitlist-success p {
+  font-size: 15px;
+  color: #cfcfcf;
+  margin: 0 0 20px;
+  line-height: 1.6;
+}
+.waitlist-success .ws-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--acid);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.waitlist-success .ws-meta .sep { color: #525252; }
 
 /* Scarcity bar above the form — DESIGN.md §4 Label style */
 section.cta .scarcity {
@@ -1654,20 +1709,32 @@ footer .colophon {
     <div class="scarcity">内测中 · 47 名中国卖家已加入 · 剩余 53 席</div>
 
     <!-- Tally.so embed · 表单在 https://tally.so/r/pbPg1Z
-         hideTitle=1 去掉 Tally 自带标题（上面 h2 已是标题）
-         transparentBackground=1 融入 landing 背景
-         dynamicHeight=1 高度自适应内容 -->
-    <div class="tally-wrap">
+         提交成功时 JS 会把 iframe 隐藏、显示下面的品牌成功态。
+         这样能绕过 Tally 免费版强制插入的"谢谢完成这份表格 · 使用 Tally 制作"广告页。 -->
+    <div class="tally-wrap" id="tally-wrap">
       <iframe
+        id="tally-iframe"
         data-tally-src="https://tally.so/embed/pbPg1Z?alignLeft=1&amp;hideTitle=1&amp;transparentBackground=1&amp;dynamicHeight=1"
         loading="lazy"
         width="100%"
-        height="276"
+        height="180"
         frameborder="0"
         marginheight="0"
         marginwidth="0"
         title="TrendRadar Waitlist"
       ></iframe>
+    </div>
+
+    <!-- Brand-consistent success state · shown only after Tally postMessage -->
+    <div id="waitlist-success" class="waitlist-success" hidden>
+      <div class="ws-check">✓</div>
+      <h3>已锁定席位</h3>
+      <p>Pro 版上线第一时间通知你的邮箱。<br/>前 100 位终身 5 折已为你预留 —— 接下来等我们的消息就好。</p>
+      <div class="ws-meta">
+        <span>内测批次 ALPHA</span>
+        <span class="sep">·</span>
+        <span>预计 8 周内上线</span>
+      </div>
     </div>
 
     <ul class="trust-strip">
@@ -1732,10 +1799,10 @@ footer .colophon {
   const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ===== 1. Waitlist — Tally.so embed =====
-  // Tally loads the iframe via its widget script. We only need to:
-  //   (a) load the widget script
-  //   (b) listen for the form-submit postMessage so we can fire a Plausible event
-  //       (and eventually celebrate with a custom thank-you UX)
+  // On Tally form submission we:
+  //   1. Hide the Tally iframe (to avoid the free-plan "made with Tally" ad)
+  //   2. Show our own branded success card
+  //   3. Fire a Plausible event for funnel tracking
   (function() {
     // Load Tally widget
     var s = document.createElement('script');
@@ -1744,21 +1811,42 @@ footer .colophon {
     s.onerror = function() { console.warn('[TrendRadar] Tally widget failed to load'); };
     document.head.appendChild(s);
 
-    // Tally posts a message on form submission — fire Plausible + dispatch
-    // a window event so other parts of the page can react.
+    function handleSubmitted() {
+      var wrap = document.getElementById('tally-wrap');
+      var success = document.getElementById('waitlist-success');
+      if (wrap) wrap.style.display = 'none';
+      if (success) success.hidden = false;
+      if (window.plausible) window.plausible('Waitlist Signup');
+      window.dispatchEvent(new CustomEvent('trendradar:waitlist-submitted'));
+    }
+
+    // Tally posts messages in a few different shapes depending on version.
+    // Try string-JSON first, then structured object, then fall back to
+    // a loose keyword match.
     window.addEventListener('message', function(event) {
-      if (typeof event.data !== 'string') return;
-      try {
-        var data = JSON.parse(event.data);
-        if (data && data.includes && data.includes('Tally.FormSubmitted')) {
-          if (window.plausible) window.plausible('Waitlist Signup');
-          window.dispatchEvent(new CustomEvent('trendradar:waitlist-submitted'));
+      var d = event.data;
+      if (!d) return;
+
+      // Shape A · structured: { event: 'Tally.FormSubmitted', payload: {...} }
+      if (typeof d === 'object' && d.event === 'Tally.FormSubmitted') {
+        handleSubmitted();
+        return;
+      }
+
+      // Shape B · JSON string
+      if (typeof d === 'string') {
+        try {
+          var parsed = JSON.parse(d);
+          if (parsed && parsed.event === 'Tally.FormSubmitted') {
+            handleSubmitted();
+            return;
+          }
+        } catch (_) { /* not JSON */ }
+
+        // Shape C · plain string containing the token (older Tally versions)
+        if (d.indexOf('Tally.FormSubmitted') !== -1) {
+          handleSubmitted();
         }
-      } catch (e) { /* not JSON, ignore */ }
-      // Tally sends { event: 'Tally.FormSubmitted', payload: {...} } in newer versions
-      if (event.data && typeof event.data === 'object' && event.data.event === 'Tally.FormSubmitted') {
-        if (window.plausible) window.plausible('Waitlist Signup');
-        window.dispatchEvent(new CustomEvent('trendradar:waitlist-submitted'));
       }
     });
   })();
