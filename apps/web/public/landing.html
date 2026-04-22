@@ -39,7 +39,28 @@
 <!-- Async font loading — CSS is non-blocking; display=swap ensures text is never invisible -->
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+<!-- Chart.js with CDN fallback. Primary: unpkg (better CN reachability than jsdelivr).
+     Fallback: cdnjs (Cloudflare). No `defer` so onerror fires reliably. -->
+<script>
+  (function() {
+    function loadChartJs(src, onFail) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.async = false; // preserve execution order vs. later inline scripts that depend on Chart
+      s.onerror = onFail;
+      document.head.appendChild(s);
+    }
+    loadChartJs(
+      'https://unpkg.com/chart.js@4.4.0/dist/chart.umd.js',
+      function() {
+        loadChartJs(
+          'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js',
+          function() { console.warn('[TrendRadar] Chart.js failed to load from all CDNs'); }
+        );
+      }
+    );
+  })();
+</script>
 
 <!-- Plausible Analytics (privacy-friendly, no cookies). Activated at runtime based on CONFIG.plausibleDomain below. -->
 <script>
@@ -1883,12 +1904,27 @@ footer .colophon {
   // ===== 7. CHART: defer render until scrolled into view =====
   (function() {
     const canvas = document.getElementById('trendChart');
-    if (!canvas || typeof Chart === 'undefined') return;
+    if (!canvas) return;
     let rendered = false;
+
+    // Wait for Chart.js to load (CDN can be slow in CN networks).
+    // Poll up to ~10s, then give up silently.
+    function whenChartReady(cb) {
+      if (typeof Chart !== 'undefined') return cb();
+      let tries = 0;
+      const iv = setInterval(function() {
+        if (typeof Chart !== 'undefined') { clearInterval(iv); cb(); }
+        else if (++tries > 100) { clearInterval(iv); console.warn('[TrendRadar] Chart.js never became available'); }
+      }, 100);
+    }
 
     function render() {
       if (rendered) return;
       rendered = true;
+      whenChartReady(function() { _renderChart(); });
+    }
+
+    function _renderChart() {
       const ctx = canvas.getContext('2d');
 
     // DESIGN.md §1.3: no gradients. Solid acid fill for bars.
