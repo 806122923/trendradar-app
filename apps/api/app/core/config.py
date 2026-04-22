@@ -60,6 +60,23 @@ class Settings(BaseSettings):
     # Vercel preview URLs (*.vercel.app) are matched by a regex in main.py.
     cors_origins: str = Field(default="")
 
+    # Email — Resend
+    # Leave empty during local dev; set in Railway for production.
+    resend_api_key: str = Field(default="")
+    resend_from_email: str = Field(default="TrendRadar Team <hi@trendradar.app>")
+    resend_reply_to: str = Field(default="")
+    # When False, emails are logged but not actually sent (safe for local/preview).
+    send_emails: bool = Field(default=False)
+
+    # Tally.so webhook signing secret — required when accepting form posts from Tally
+    tally_signing_secret: str = Field(default="")
+
+    # Public-facing site URL — used in email links
+    site_url: str = Field(default="https://trendradar-app-sigma.vercel.app")
+
+    # Waitlist founder seat cap — first N people lock lifetime 50% off
+    founders_seat_cap: int = Field(default=100)
+
     @property
     def is_dev(self) -> bool:
         return self.app_env == "development"
