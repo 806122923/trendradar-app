@@ -1,0 +1,89 @@
+/* ============================================================
+ * TrendRadar — self-hosted font faces
+ *
+ * WOFF2 files are copied from node_modules/@fontsource/* by
+ * scripts/copy-fonts.mjs during `npm run dev` / `npm run build`.
+ *
+ * Why self-hosted:
+ *   fonts.googleapis.com + fonts.gstatic.com are blocked / slow in mainland China.
+ *   Our target users (new TikTok Shop US sellers) read this page without VPN,
+ *   so Google-hosted fonts would silently fall back to system fonts and
+ *   break the visual identity. Hosting from our own origin (served by Vercel's
+ *   edge CDN with HK/Tokyo PoPs) is 3-5x faster for CN visitors.
+ *
+ * Subset: latin only. CJK characters fall back to PingFang SC / Microsoft YaHei.
+ *   — ship a separate CJK webfont only if we ever need brand-specific Chinese
+ *     display (we don't today; system fonts look fine).
+ *
+ * `font-display: swap` — render immediately in fallback, swap in webfont when
+ *   ready. Avoids the "invisible text for 3 seconds" anti-pattern.
+ * ============================================================ */
+
+/* Space Grotesk — display / headings / numbers */
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/space-grotesk-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/space-grotesk-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/space-grotesk-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/space-grotesk-latin-700-normal.woff2") format("woff2");
+}
+
+/* Inter — body text */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/inter-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/inter-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/inter-latin-600-normal.woff2") format("woff2");
+}
+
+/* JetBrains Mono — monospace labels, tags, code */
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2");
+}

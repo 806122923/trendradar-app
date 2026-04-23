@@ -17,20 +17,20 @@
   --acid: #ff4f1a;
   --acid-deep: #d93e0e;
   --green: #00c853;
+
+  /* Typography stacks — consumed by Tailwind's font-{display,sans,mono} utilities
+     via tailwind.config.ts. The webfonts themselves are self-hosted; see
+     /public/fonts/fonts.css. Chinese glyphs fall back to PingFang/YaHei. */
+  --font-display: "Space Grotesk", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-sans: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 html,
 body {
   padding: 0;
   margin: 0;
-  /* Chinese glyphs fall back to PingFang / YaHei; Latin uses Inter (from next/font) */
-  font-family:
-    var(--font-sans),
-    "PingFang SC",
-    "Hiragino Sans GB",
-    "Microsoft YaHei",
-    system-ui,
-    sans-serif;
+  font-family: var(--font-sans);
   color: var(--ink);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;

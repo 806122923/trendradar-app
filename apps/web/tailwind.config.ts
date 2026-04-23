@@ -18,16 +18,12 @@ const config: Config = {
         "muted-foreground": "hsl(215 16% 47%)",
       },
       fontFamily: {
-        // Populated by `next/font/google` CSS variables in layout.tsx
-        display: ["var(--font-display)", "system-ui", "sans-serif"],
-        sans: [
-          "var(--font-sans)",
-          "PingFang SC",
-          "Microsoft YaHei",
-          "system-ui",
-          "sans-serif",
-        ],
-        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        // CSS vars defined in src/app/globals.css :root — they resolve to
+        // self-hosted webfonts declared in public/fonts/fonts.css, with
+        // PingFang / YaHei fallbacks baked into the var itself.
+        display: ["var(--font-display)"],
+        sans: ["var(--font-sans)"],
+        mono: ["var(--font-mono)"],
       },
       borderRadius: {
         // Landing uses 2px corners; keep Tailwind's `rounded-sm` aligned

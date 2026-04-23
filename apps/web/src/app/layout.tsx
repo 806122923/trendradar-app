@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
@@ -8,26 +7,17 @@ import "./globals.css";
 // route reports to the same `data-domain`.
 const PLAUSIBLE_DOMAIN = "trendradar-app-sigma.vercel.app";
 
-// Match the orange landing page's typography. Latin subset is fine —
-// Chinese glyphs fall back to PingFang SC / Microsoft YaHei via CSS.
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-display",
-  weight: ["400", "500", "600", "700"],
-});
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sans",
-  weight: ["400", "500", "600"],
-});
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-mono",
-  weight: ["400", "500"],
-});
+// Typography: Space Grotesk / Inter / JetBrains Mono are self-hosted from
+// /public/fonts/ (copied from @fontsource/* at build time — see
+// scripts/copy-fonts.mjs). The actual @font-face declarations live in
+// /public/fonts/fonts.css, loaded via a <link> in the <head> below so the
+// same file is shared between the static landing + alternatives HTML pages
+// and the Next.js-rendered app.
+//
+// Rationale for not using next/font/google: fonts.gstatic.com is blocked/slow
+// in mainland China, where our TikTok Shop seller audience lives. Self-hosting
+// through Vercel's edge CDN (HK/Tokyo PoPs) is 3-5x faster for CN visitors
+// and keeps React + static pages on exactly the same font files.
 
 // NOTE: `/` is served from the static `public/landing.html` via a
 // `beforeFiles` rewrite in `next.config.mjs`. That file has its own full
@@ -82,10 +72,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="zh-CN"
-      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
-    >
+    <html lang="zh-CN">
+      <head>
+        {/* Self-hosted fonts — see /public/fonts/fonts.css.
+            Preload the two weights used above the fold so the paint is crisp
+            on first load (hero headline + body copy). */}
+        <link
+          rel="preload"
+          href="/fonts/space-grotesk-latin-600-normal.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/inter-latin-400-normal.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link rel="stylesheet" href="/fonts/fonts.css" />
+      </head>
       <body className="bg-white text-black antialiased font-sans">
         {children}
         {/* Plausible pageviews + outbound links + file downloads.

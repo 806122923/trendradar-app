@@ -3,12 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "npm run copy-fonts && next dev",
+    "build": "npm run copy-fonts && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "copy-fonts": "node scripts/copy-fonts.mjs"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.1.0",
+    "@fontsource/jetbrains-mono": "^5.1.0",
+    "@fontsource/space-grotesk": "^5.1.0",
+    "chart.js": "^4.4.0",
     "next": "^14.2.35",
     "react": "18.3.1",
     "react-dom": "18.3.1"

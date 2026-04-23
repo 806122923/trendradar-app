@@ -34,33 +34,17 @@
 <!-- Theme color (browser UI tint on mobile) -->
 <meta name="theme-color" content="#000000" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Async font loading — CSS is non-blocking; display=swap ensures text is never invisible -->
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
-<!-- Chart.js with CDN fallback. Primary: unpkg (better CN reachability than jsdelivr).
-     Fallback: cdnjs (Cloudflare). No `defer` so onerror fires reliably. -->
-<script>
-  (function() {
-    function loadChartJs(src, onFail) {
-      var s = document.createElement('script');
-      s.src = src;
-      s.async = false; // preserve execution order vs. later inline scripts that depend on Chart
-      s.onerror = onFail;
-      document.head.appendChild(s);
-    }
-    loadChartJs(
-      'https://unpkg.com/chart.js@4.4.0/dist/chart.umd.js',
-      function() {
-        loadChartJs(
-          'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js',
-          function() { console.warn('[TrendRadar] Chart.js failed to load from all CDNs'); }
-        );
-      }
-    );
-  })();
-</script>
+<!-- Self-hosted fonts (Fontsource, copied to /public/fonts/ at build time).
+     Chosen over Google Fonts because fonts.gstatic.com is blocked/slow in CN —
+     our new-seller audience reads without VPN. See scripts/copy-fonts.mjs. -->
+<link rel="preload" href="/fonts/space-grotesk-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<!-- Chart.js, self-hosted from /public/vendor/ (copied from the chart.js npm
+     package by scripts/copy-fonts.mjs). Previous implementation went through
+     unpkg / cdnjs CDNs which had flaky CN reachability; now same-origin,
+     cached by Vercel's edge, and immune to upstream CDN outages. -->
+<script src="/vendor/chart.umd.js"></script>
 
 <!-- Plausible Analytics (privacy-friendly, no cookies). Activated by the
      <meta name="plausible-domain"> tag below. Using the extended `script`
