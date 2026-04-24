@@ -51,6 +51,11 @@ logs/
 ds_api_key.txt
 
 # ==== Cowork / Claude local config ====
-.claude/
+# Ignore everything inside .claude EXCEPT the project docs we want versioned.
+# CLAUDE.md is the entry point Claude Code reads on every prompt.
+# PROJECT.md is the human-friendly full-context doc (see .claude/PROJECT.md).
+.claude/*
+!.claude/CLAUDE.md
+!.claude/PROJECT.md
 install-skills.ps1
 link-skills.ps1
