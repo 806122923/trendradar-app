@@ -104,7 +104,7 @@ function ChatInner() {
     run(query);
   }
 
-  function usePreset(p: string) {
+  function runPreset(p: string) {
     setQuery(p);
     run(p);
   }
@@ -232,7 +232,7 @@ function ChatInner() {
               {PRESETS.map((p, i) => (
                 <button
                   key={i}
-                  onClick={() => usePreset(p)}
+                  onClick={() => runPreset(p)}
                   disabled={busy}
                   className="tr-chip disabled:opacity-40"
                 >

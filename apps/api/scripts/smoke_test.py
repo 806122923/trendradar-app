@@ -1,4 +1,4 @@
-"""Smoke tests — run after setup to verify each layer works.
+r"""Smoke tests — run after setup to verify each layer works.
 
 Usage (from apps/api/):
     .\.venv\Scripts\Activate.ps1
@@ -32,6 +32,7 @@ async def test_config() -> None:
 
 async def test_db() -> None:
     from sqlalchemy import text
+
     from app.core.db import AsyncSessionLocal
     async with AsyncSessionLocal() as session:
         row = (await session.execute(text("SELECT 1 as n"))).first()
@@ -40,8 +41,8 @@ async def test_db() -> None:
 
 
 async def test_llm() -> None:
-    from app.core.llm_router import LLMMessage, router
     from app.core.config import get_settings
+    from app.core.llm_router import LLMMessage, router
     s = get_settings()
     if not s.deepseek_api_key and not s.anthropic_api_key:
         print("[3/4] ⚠ Skipped — no LLM keys configured")

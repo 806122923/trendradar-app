@@ -14,8 +14,9 @@ Authentication + session persistence come week 2.
 from __future__ import annotations
 
 import json
+from collections.abc import AsyncIterator
 from datetime import date
-from typing import AsyncIterator
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -23,12 +24,14 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session
-from app.core.llm_router import LLMMessage, router as llm
+from app.core.llm_router import LLMMessage
+from app.core.llm_router import router as llm
 from app.models.product import Product
 from app.prompts.picker import build_picker_messages
 from app.schemas.chat import ChatQueryRequest
 
 router = APIRouter(prefix="/chat")
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
 # Placeholder mock candidates — used when DB is empty in very early dev.
@@ -101,7 +104,7 @@ async def _candidates_for(query: str, session: AsyncSession) -> list[dict]:
 @router.post("/query")
 async def chat_query(
     req: ChatQueryRequest,
-    session: AsyncSession = Depends(get_session),
+    session: SessionDep,
 ) -> StreamingResponse:
     """Stream a picking response as SSE.
 
@@ -136,4 +139,4 @@ async def chat_query(
 
 def _sse(payload: dict) -> bytes:
     """Format as a Server-Sent Event frame."""
-    return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n".encode("utf-8")
+    return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n".encode()

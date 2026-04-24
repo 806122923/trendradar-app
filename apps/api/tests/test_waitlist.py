@@ -13,12 +13,11 @@ import hmac
 import pytest
 
 from app.api.v1.waitlist import (
-    _TallyPayload,
     _extract_email_from_tally,
+    _TallyPayload,
     _verify_tally_signature,
 )
 from app.integrations.email_templates import welcome_email
-
 
 # ---------------------------------------------------------------------------
 # Tally webhook parsing
@@ -43,7 +42,12 @@ def test_extract_email_by_label_chinese():
     payload = _TallyPayload(
         data={
             "fields": [
-                {"key": "q1", "label": "你的邮箱", "type": "INPUT_TEXT", "value": "seller@tiktok.cn"},
+                {
+                    "key": "q1",
+                    "label": "你的邮箱",
+                    "type": "INPUT_TEXT",
+                    "value": "seller@tiktok.cn",
+                },
             ]
         },
     )

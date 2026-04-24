@@ -59,3 +59,6 @@ ds_api_key.txt
 !.claude/PROJECT.md
 install-skills.ps1
 link-skills.ps1
+
+# ==== OMX local runtime state ====
+.omx/

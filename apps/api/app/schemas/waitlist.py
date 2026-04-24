@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class WaitlistJoinRequest(BaseModel):
@@ -16,9 +16,8 @@ class WaitlistJoinRequest(BaseModel):
     referrer: str | None = Field(default=None, max_length=512)
     metadata: dict[str, Any] | None = None
 
-    class Config:
-        # Accept `metadata` in the request body but store as `metadata_json` in DB
-        populate_by_name = True
+    # Accept `metadata` in the request body but store as `metadata_json` in DB.
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class WaitlistJoinResponse(BaseModel):

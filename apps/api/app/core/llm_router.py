@@ -15,10 +15,8 @@ Usage:
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
-from enum import Enum
-from typing import Any
+from enum import StrEnum
 
-import httpx
 from anthropic import AsyncAnthropic
 from openai import AsyncOpenAI
 from pydantic import BaseModel
@@ -28,7 +26,7 @@ from app.core.config import get_settings
 settings = get_settings()
 
 
-class Plan(str, Enum):
+class Plan(StrEnum):
     FREE = "free"
     PRO = "pro"
     TEAM = "team"

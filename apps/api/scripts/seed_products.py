@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 # Make `app` importable
@@ -260,7 +260,7 @@ PRODUCTS: list[dict] = [
 
 async def seed() -> int:
     """Upsert all products. Returns count inserted/updated."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     count = 0
 
     async with AsyncSessionLocal() as session:

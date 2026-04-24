@@ -11,10 +11,10 @@ from __future__ import annotations
 import hashlib
 import hmac
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,6 +32,7 @@ from app.schemas.waitlist import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/waitlist")
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
 # ---------------------------------------------------------------------------
@@ -123,7 +124,7 @@ async def _try_send_welcome_email(entry: WaitlistEntry, *, session: AsyncSession
 )
 async def join(
     req: WaitlistJoinRequest,
-    session: AsyncSession = Depends(get_session),
+    session: SessionDep,
 ) -> WaitlistJoinResponse:
     """Public endpoint — accepts email from landing page form."""
     return await _join_waitlist(req=req, session=session)
@@ -134,7 +135,7 @@ async def join(
 # ---------------------------------------------------------------------------
 
 @router.get("/stats", response_model=WaitlistStats)
-async def stats(session: AsyncSession = Depends(get_session)) -> WaitlistStats:
+async def stats(session: SessionDep) -> WaitlistStats:
     """Lightweight, cache-friendly — safe to hit on every landing page load.
 
     Could be cached in Redis for 60s once traffic picks up; skipped for now.
@@ -159,9 +160,11 @@ class _TallyFieldValue(BaseModel):
 
 
 class _TallyPayload(BaseModel):
-    eventId: str | None = None
-    eventType: str | None = None
-    createdAt: str | None = None
+    model_config = ConfigDict(populate_by_name=True)
+
+    event_id: str | None = Field(default=None, alias="eventId")
+    event_type: str | None = Field(default=None, alias="eventType")
+    created_at: str | None = Field(default=None, alias="createdAt")
     data: dict[str, Any]
 
 
@@ -188,16 +191,18 @@ def _extract_email_from_tally(payload: _TallyPayload) -> str | None:
             continue
         label_or_key = (fv.label or fv.key or "").lower()
         # Match by label containing 'email' OR by type='INPUT_EMAIL'
-        if fv.type == "INPUT_EMAIL" or "email" in label_or_key or "邮箱" in label_or_key:
-            if isinstance(fv.value, str) and "@" in fv.value:
-                return fv.value.strip().lower()
+        is_email_field = (
+            fv.type == "INPUT_EMAIL" or "email" in label_or_key or "邮箱" in label_or_key
+        )
+        if is_email_field and isinstance(fv.value, str) and "@" in fv.value:
+            return fv.value.strip().lower()
     return None
 
 
 @router.post("/tally", status_code=status.HTTP_200_OK)
 async def tally_webhook(
     request: Request,
-    session: AsyncSession = Depends(get_session),
+    session: SessionDep,
 ) -> dict[str, Any]:
     """Tally.so webhook receiver.
 
@@ -227,8 +232,8 @@ async def tally_webhook(
         raise HTTPException(status_code=400, detail="No email field found in submission")
 
     meta = {
-        "tally_event_id": payload.eventId,
-        "tally_event_type": payload.eventType,
+        "tally_event_id": payload.event_id,
+        "tally_event_type": payload.event_type,
     }
     req = WaitlistJoinRequest(email=email, source="tally", metadata=meta)
     result = await _join_waitlist(req=req, session=session)

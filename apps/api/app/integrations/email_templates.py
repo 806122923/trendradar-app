@@ -82,7 +82,9 @@ def welcome_email(
     {hero}
     <p>我们正在做的事，一句话：</p>
     <p style="border-left: 3px solid #FF4F1A; padding-left: 14px; color: #111;">
-      <strong>用 AI Agent 帮 TikTok Shop 美区新手卖家选品 — 不是给你一堆报表，是直接替你拍板。</strong>
+      <strong>
+        用 AI Agent 帮 TikTok Shop 美区新手卖家选品 — 不是给你一堆报表，是直接替你拍板。
+      </strong>
     </p>
     <hr>
     <p><strong>{badge}</strong></p>
@@ -112,6 +114,12 @@ def welcome_email(
 </body>
 </html>"""
 
+    plain_offer_line = (
+        "- 前 100 名终身 5 折 — Pro 年卡 ¥899 → 你锁的是 ¥449/年，永久"
+        if is_founder
+        else "- 上线后享受首月 ¥49 优惠"
+    )
+
     text = f"""Hey，
 
 刚收到你的邮箱了。你是第 #{position} 位加入 TrendRadar waitlist 的人。
@@ -119,7 +127,7 @@ def welcome_email(
 我们正在做的事：用 AI Agent 帮 TikTok Shop 美区新手卖家选品 — 不是给你一堆报表，是直接替你拍板。
 
 你现在拥有的：
-{'- 前 100 名终身 5 折 — Pro 年卡 ¥899 → 你锁的是 ¥449/年，永久' if is_founder else '- 上线后享受首月 ¥49 优惠'}
+{plain_offer_line}
 - 上线前 3 天收到专属邀请链接
 - 每月一次产品进展速报
 

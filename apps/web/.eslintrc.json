@@ -1,0 +1,14 @@
+{
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "ignorePatterns": [
+    "next-env.d.ts",
+    ".next/**",
+    "out/**",
+    "build/**",
+    "public/vendor/**",
+    "public/fonts/*.woff2"
+  ],
+  "rules": {
+    "@next/next/no-css-tags": "off"
+  }
+}
