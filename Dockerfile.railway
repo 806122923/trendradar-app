@@ -1,0 +1,41 @@
+# TrendRadar API image for Railway services that build from the repository root.
+#
+# Preferred Railway setup is still Root Directory = apps/api, which uses
+# apps/api/Dockerfile directly. This root-context Dockerfile prevents Railpack
+# from mis-detecting the monorepo root when that setting is missed.
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY apps/api/pyproject.toml .
+RUN pip install --no-cache-dir --prefix=/install .
+
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /install /usr/local
+
+COPY apps/api/app ./app
+COPY apps/api/alembic ./alembic
+COPY apps/api/alembic.ini .
+COPY apps/api/scripts ./scripts
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    APP_ENV=production
+
+ENV PORT=8000
+EXPOSE 8000
+
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwarded-allow-ips='*'"]

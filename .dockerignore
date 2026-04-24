@@ -1,0 +1,40 @@
+# Root Docker context hygiene for Dockerfile.railway.
+.git/
+.github/
+.omx/
+.claude/
+.agents/
+
+# Secrets / local config
+.env
+.env.*
+*.pem
+*api_key*
+ds_api_key.txt
+
+# Python local state
+**/__pycache__/
+**/*.py[cod]
+apps/api/.venv/
+apps/api/.pytest_cache/
+apps/api/.ruff_cache/
+apps/api/.mypy_cache/
+apps/api/trendradar_api.egg-info/
+
+# Node / Next local state
+apps/web/node_modules/
+apps/web/.next/
+apps/web/out/
+apps/web/.vercel/
+apps/web/tsconfig.tsbuildinfo
+
+# Build-time generated static copies
+apps/web/public/fonts/*.woff2
+apps/web/public/vendor/chart.umd.js
+
+# OS / editor / logs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
