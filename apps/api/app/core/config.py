@@ -7,7 +7,7 @@ handles both transparently as long as we don't crash when `.env` is missing.
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -80,6 +80,25 @@ class Settings(BaseSettings):
     @property
     def is_dev(self) -> bool:
         return self.app_env == "development"
+
+    @model_validator(mode="after")
+    def validate_production_settings(self) -> "Settings":
+        """Fail fast when production would silently use local-only defaults."""
+        if self.app_env != "production":
+            return self
+
+        if "localhost" in self.database_url or "127.0.0.1" in self.database_url:
+            raise ValueError(
+                "DATABASE_URL must be set to the production Postgres URL when "
+                "APP_ENV=production; refusing to use localhost."
+            )
+        if not self.database_url.startswith("postgresql+asyncpg://"):
+            raise ValueError(
+                "DATABASE_URL must use the async SQLAlchemy URL format, e.g. "
+                "postgresql+asyncpg://USER:PASSWORD@HOST/DB?ssl=require"
+            )
+
+        return self
 
 
 @lru_cache
