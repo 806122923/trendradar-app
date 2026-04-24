@@ -33,3 +33,5 @@ next-env.d.ts.bak
 # repo and make the `@fontsource/*` + chart.js deps in package.json meaningless.
 public/fonts/*.woff2
 public/vendor/chart.umd.js
+
+.vercel
