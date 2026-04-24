@@ -89,6 +89,7 @@ git push -u origin main
    - **Watch Paths**: `apps/api/**`
    - （Dockerfile 已经在 `apps/api/Dockerfile`，Railway 会自动用它）
    - 如果忘了设置 Root Directory，仓库根目录的 `railway.json` + `Dockerfile.railway` 也会兜底，强制 Railway 从根目录构建 API 镜像；但推荐设置 Root Directory，构建上下文更小。
+   - **Healthcheck Path**: `/api/v1/health`（`/api/v1/health/ready` 会检查数据库，适合人工排查，不适合做首启健康检查）
 4. **Variables** 选项卡，添加以下环境变量：
    ```
    DATABASE_URL=postgresql+asyncpg://...（Step 1 改好的那串）
