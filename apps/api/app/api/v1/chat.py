@@ -33,6 +33,37 @@ from app.schemas.chat import ChatQueryRequest
 router = APIRouter(prefix="/chat")
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
+_CATEGORY_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    (
+        "Home",
+        (
+            "家居",
+            "家装",
+            "居家",
+            "卧室",
+            "客厅",
+            "收纳",
+            "香薰",
+            "加湿",
+            "小夜灯",
+            "home",
+            "household",
+            "decor",
+            "bedroom",
+            "storage",
+        ),
+    ),
+    (
+        "Kitchen",
+        ("厨房", "厨具", "餐厨", "烹饪", "kitchen", "cookware", "cooking"),
+    ),
+    ("Pet", ("宠物", "猫", "狗", "pet", "cat", "dog")),
+    ("Beauty", ("美妆", "个护", "护肤", "彩妆", "beauty", "skincare", "makeup")),
+    ("Outdoor", ("户外", "露营", "旅行", "野营", "outdoor", "camping", "travel")),
+    ("Kids", ("儿童", "宝宝", "母婴", "玩具", "kids", "baby", "toy")),
+    ("Tech", ("数码", "手机", "充电", "电脑", "tech", "phone", "charger", "laptop")),
+)
+
 
 # Placeholder mock candidates — used when DB is empty in very early dev.
 # Replace once the scraper populates `products` table.
@@ -76,6 +107,32 @@ _MOCK_CANDIDATES = [
 ]
 
 
+def _primary_category_for_query(query: str) -> str | None:
+    """Infer one seed-data category from explicit category words in the query."""
+    normalized = query.lower()
+    matches: list[tuple[int, int, str]] = []
+    for category_order, (category, keywords) in enumerate(_CATEGORY_KEYWORDS):
+        positions = [normalized.find(keyword) for keyword in keywords]
+        found = [pos for pos in positions if pos >= 0]
+        if found:
+            matches.append((min(found), category_order, category))
+    if not matches:
+        return None
+    return min(matches)[2]
+
+
+def _candidate_from_product(product: Product) -> dict:
+    return {
+        "product_id": product.platform_id,  # use stable scraper-side id
+        "title": product.title,
+        "price_usd": float(product.price_usd) if product.price_usd else None,
+        "category": product.category,
+        "gmv_14d": float(product.gmv_14d) if product.gmv_14d else None,
+        "growth_14d": float(product.growth_14d) if product.growth_14d else None,
+        **(product.raw or {}),
+    }
+
+
 async def _candidates_for(query: str, session: AsyncSession) -> list[dict]:
     """Pre-filter 50 products from DB. Falls back to mock if DB is empty.
 
@@ -83,22 +140,15 @@ async def _candidates_for(query: str, session: AsyncSession) -> list[dict]:
     into the candidate dict so the LLM has rich context to reason about competition
     intensity and creator momentum.
     """
+    category = _primary_category_for_query(query)
     stmt = select(Product).order_by(Product.growth_14d.desc().nullslast()).limit(50)
+    if category:
+        stmt = stmt.where(Product.category == category)
     rows = (await session.execute(stmt)).scalars().all()
     if not rows:
-        return _MOCK_CANDIDATES
-    return [
-        {
-            "product_id": p.platform_id,  # use stable scraper-side id
-            "title": p.title,
-            "price_usd": float(p.price_usd) if p.price_usd else None,
-            "category": p.category,
-            "gmv_14d": float(p.gmv_14d) if p.gmv_14d else None,
-            "growth_14d": float(p.growth_14d) if p.growth_14d else None,
-            **(p.raw or {}),  # shop_count, creator_count, review_count, avg_rating, tags
-        }
-        for p in rows
-    ]
+        filtered = [c for c in _MOCK_CANDIDATES if not category or c["category"] == category]
+        return filtered or _MOCK_CANDIDATES
+    return [_candidate_from_product(p) for p in rows]
 
 
 @router.post("/query")
